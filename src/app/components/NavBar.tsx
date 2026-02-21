@@ -30,6 +30,8 @@ import { UserRole } from "../../types/enum";
 import { useAuth } from "_hooks/useAuth";
 import { useIsActive } from "_hooks/useActive";
 
+const MotionBox = motion.create(Box);
+
 export const Navbar = () => {
   const { session } = useAuthContext();
   const { logout } = useAuth();
@@ -37,7 +39,6 @@ export const Navbar = () => {
   const router = useRouter();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [isOpen, setIsOpen] = useState(false);
-  const MotionBox = motion(Box);
 
   const { data: user, isLoading } = UserModule.getUserInfo({
     params: { userId: session?.userId },
@@ -54,7 +55,7 @@ export const Navbar = () => {
     } else {
       CustomToast({
         duration: 3000,
-        title: "Veuillez creer un compte",
+        title: "Veuillez créer un compte",
         description: " Pour creer une agence vous devrez vous incrire",
         type: ToastStatus.INFO,
       });
@@ -246,7 +247,10 @@ export const Navbar = () => {
                   <BaseButton
                     width={"full"}
                     variant="outline"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      router.push(APP_ROUTES.AUTH.SIGN_IN);
+                      setIsOpen(false);
+                    }}
                   >
                     Connexion
                   </BaseButton>
@@ -272,7 +276,7 @@ export const Navbar = () => {
                     Acceder au Tableau de bord
                   </BaseButton>
                 ) : (
-                  <BaseButton width={"full"} onClick={createAgency}>
+                  <BaseButton width={"full"} onClick={() => createAgency()}>
                     Créer mon agence
                   </BaseButton>
                 )}
