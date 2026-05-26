@@ -12,17 +12,14 @@ import { PlanSelectorMode } from './pricing/PlanSelectMode';
 import { PlanCard } from './pricing/PlanCard';
 import { APP_ROUTES } from '_config/routes';
 import { getBestYearlySavings, getFilteredPlans } from '_component/pricing/functions/pricing';
+import { t } from 'i18next';
 
 export const PricingSection = () => {
   const navigate = useRouter();
   const [mode, setMode] = useState<ENUM.PricingType>('SUBSCRIPTION');
   const [billingCycle, setBillingCycle] = useState<ENUM.BillingCycle>('MONTHLY');
 
-  const { data: allPacks } = CommonModule.getAllPacksQueries({
-    queryOptions: {
-      enabled: true,
-    },
-  });
+  const { data: allPacks } = CommonModule.getAllPacksQueries({});
 
   const filteredPlans = getFilteredPlans(allPacks, mode);
 
@@ -38,7 +35,7 @@ export const PricingSection = () => {
     const safeCycle: ENUM.BillingCycle | undefined =
       plan.pricingType === 'SUBSCRIPTION' ? (cycle ?? 'MONTHLY') : undefined;
     BaseToast({
-      title: `Plan ${plan.name} sélectionné`,
+      title: `Plan ${t(`SUBSCRIPTION.PLANS.${plan.name}`)} sélectionné`,
       description:
         plan.pricingType === 'SUBSCRIPTION'
           ? `Facturation ${safeCycle === 'YEARLY' ? 'annuelle' : 'mensuelle'}`

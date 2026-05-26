@@ -167,7 +167,7 @@ export const StepPlanSelection = ({ value, allPacks }: StepPlanSelectionProps) =
                   billingCycle,
                 })
               }
-              label={plan.name}
+              label={t(`SUBSCRIPTION.PLANS.${plan.name}`)}
             >
               <MotionBox
                 key={index}
@@ -180,7 +180,7 @@ export const StepPlanSelection = ({ value, allPacks }: StepPlanSelectionProps) =
               >
                 <VStack gap={2}>
                   <BaseText variant={TextVariant.L} weight={TextWeight.SemiBold}>
-                    {plan.name}
+                    {t(`SUBSCRIPTION.PLANS.${plan.name}`)}
                   </BaseText>
 
                   {/* 💰 PRIX */}
