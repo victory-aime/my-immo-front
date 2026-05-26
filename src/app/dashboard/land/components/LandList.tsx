@@ -4,10 +4,8 @@ import {
   BaseFormatNumber,
   BaseTag,
   BaseText,
-  BaseToast,
   ColumnsDataTable,
   DataTableContainer,
-  ToastStatus,
 } from '_components/custom';
 import { useMemo, useState } from 'react';
 import { LandFilter } from './LandFilter';
@@ -18,17 +16,13 @@ import { CONSTANTS, MODELS } from '_types/*';
 import { LandDelete } from './LandDelete';
 import { LandDetails } from './LandDetails';
 import { FormikValues } from 'formik';
-import { useTranslation } from 'react-i18next';
 import { LandStatsCard } from './LandStats';
 import { useUserContext } from '_context/user-context';
 
 export const LandList = () => {
   const router = useRouter();
-  const { t } = useTranslation();
   const { user: currentUser } = useUserContext();
   const [currentPage, setCurrentPage] = useState(1);
-  // const { exportTableToPdf } = PDFService.ExportService();
-  const [exportLoading, setExportLoading] = useState(false);
   const [toggleFilter, setToggleFilter] = useState<boolean>(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
@@ -146,26 +140,6 @@ export const LandList = () => {
     setCurrentPage(page);
   };
 
-  const handleExportPdf = async () => {
-    if (allLands?.content?.length === 0) {
-      return BaseToast({
-        title: 'Export impossible',
-        description: "Vous ne pouvez pas exporter la liste car vous ne disposer d'aucun terrain",
-        type: ToastStatus.INFO,
-      });
-    }
-    setExportLoading(true);
-    const translatedColumns = landColumns.map((col) => ({
-      ...col,
-      header: t(col.header),
-    }));
-    // await exportTableToPdf(
-    //   allLands?.content as unknown as IuseExportData[],
-    //   'Liste des Terrains',
-    //   translatedColumns,
-    // );
-  };
-
   return (
     <BaseContainer
       title="Gestion des Terrains"
@@ -190,9 +164,6 @@ export const LandList = () => {
         downloadTitle: `Exporter PDF (${allLands?.content?.length ?? 0})`,
         onClick() {
           router.push(DASHBOARD_ROUTES.LAND.ADD);
-        },
-        onDownload: async () => {
-          await handleExportPdf().then(() => !exportLoading);
         },
         onReload: async () => {
           await reloadLandsList();

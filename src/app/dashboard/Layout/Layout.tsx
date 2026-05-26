@@ -22,6 +22,9 @@ import { AuthModule } from '_store/state-management';
 import { useUserContext } from '_context/user-context';
 import { useAuth } from '_hooks/useAuth';
 import { ENUM } from '_types/*';
+import { getToken } from 'firebase/messaging';
+import { firebaseMessaging } from '../../lib/firebase';
+import { onMessage } from 'firebase/messaging';
 
 export const Layout: FunctionComponent<{
   children: React.ReactNode;
@@ -35,6 +38,7 @@ export const Layout: FunctionComponent<{
   const [showTour, setShowTour] = useState(false);
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
   const isInactiveUser = !currentUserLoad && currentUser?.status === ENUM.COMMON.Status.INACTIVE;
+  const notificationRequested = useRef(false);
   const isShowEmailNotVerifiedBanner = !currentUserLoad && !currentUser?.emailVerified;
   const emailVerifiedStorageKey = user?.id
     ? `${StorageKey.DASHBOARD_OWNER_EMAIL_VERIFIED}_${user.id.slice(0, 8)}`
@@ -135,6 +139,59 @@ export const Layout: FunctionComponent<{
       },
     });
   };
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const initPushNotifications = async () => {
+      try {
+        if (!('Notification' in window)) {
+          return;
+        }
+
+        if (!firebaseMessaging) {
+          return;
+        }
+
+        let permission = Notification.permission;
+
+        if (permission === 'default') {
+          permission = await Notification.requestPermission();
+        }
+
+        if (permission !== 'granted') {
+          return;
+        }
+
+        const fcmToken = await getToken(firebaseMessaging, {
+          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+        });
+
+        console.log('fcmToken', fcmToken);
+
+        if (!fcmToken) {
+          return;
+        }
+
+        console.log('FCM TOKEN', fcmToken);
+
+        // TODO:
+        // envoyer au backend
+        // await api.registerPushToken(fcmToken)
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    initPushNotifications();
+  }, [user?.id]);
+
+  onMessage(firebaseMessaging!, (payload) => {
+    console.log('FOREGROUND MESSAGE:', payload);
+    BaseToast({
+      title: payload.notification?.title,
+      description: payload.notification?.body,
+    });
+  });
 
   if (currentUserLoad) return null;
 
