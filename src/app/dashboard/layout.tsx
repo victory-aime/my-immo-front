@@ -5,7 +5,7 @@ import { SessionRefreshProvider } from '_context/SessionRefresh-context';
 import { UserProvider } from '_context/user-context';
 import { safeGetServerSession } from '_hooks/get-server-session';
 import { DynamicThemeProvider } from '_context/theme-context';
-import { ChatProvider } from '../provider/chat-provider';
+import React from 'react';
 
 export default async function DashboardLayout({
   children,
@@ -18,16 +18,12 @@ export default async function DashboardLayout({
     },
   });
 
-  console.log('DashboardLayout', session);
-
   return (
     <AuthContextProvider session={session?.data as any}>
       <SessionRefreshProvider error={session?.error?.toString()}>
         <UserProvider userId={session?.data?.user?.id}>
           <DynamicThemeProvider>
-            <Layout>
-              <>{children}</>
-            </Layout>
+            <Layout>{children}</Layout>
           </DynamicThemeProvider>
         </UserProvider>
       </SessionRefreshProvider>
