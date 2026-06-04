@@ -23,9 +23,7 @@ export default async function DashboardLayout({
       <SessionRefreshProvider error={session?.error?.toString()}>
         <UserProvider userId={session?.data?.user?.id}>
           <DynamicThemeProvider>
-            <Layout>
-              <>{children}</>
-            </Layout>
+            <Layout>{children}</Layout>
           </DynamicThemeProvider>
         </UserProvider>
       </SessionRefreshProvider>
