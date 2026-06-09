@@ -11,7 +11,7 @@ import {
 import { MotionBox } from '_constants/motion';
 import { ENUM } from '_types/*';
 import { PlanCardProps } from './interface/pricing-types';
-import { formatLimit, getPricing } from './functions/pricing';
+import { formatLimit, getCommercialFeatures, getPricing } from './functions/pricing';
 import { t } from 'i18next';
 
 export const PlanCard = ({
@@ -113,7 +113,7 @@ export const PlanCard = ({
         <BaseText color={plan.popular ? 'inherit' : 'none'}>Choisir ce plan</BaseText>
       </BaseButton>
 
-      <For each={plan.planFeatures}>
+      <For each={getCommercialFeatures(plan)}>
         {(features, index) => (
           <List.Root key={index} variant="plain" align="start" mt={4}>
             <List.Item key={features.label} alignItems={'flex-start'} gap={0} fontSize={'sm'}>

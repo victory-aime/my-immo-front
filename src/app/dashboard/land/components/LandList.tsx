@@ -13,7 +13,6 @@ import { LandModule } from '_store/state-management';
 import { useRouter } from 'next/navigation';
 import { DASHBOARD_ROUTES } from '../../routes';
 import { CONSTANTS, MODELS } from '_types/*';
-import { LandDelete } from './LandDelete';
 import { LandDetails } from './LandDetails';
 import { FormikValues } from 'formik';
 import { LandStatsCard } from './LandStats';
@@ -24,7 +23,6 @@ export const LandList = () => {
   const { user: currentUser } = useUserContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [toggleFilter, setToggleFilter] = useState<boolean>(false);
-  const [openDelete, setOpenDelete] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedValues, setSelectedValues] = useState<MODELS.LandResponseDto | null>(null);
   const [filterValues, setFilterValues] = useState<MODELS.ILandFilter | null>(null);
@@ -53,15 +51,6 @@ export const LandList = () => {
     isLoading: isLandLoad,
     refetch: reloadLandsList,
   } = LandModule.getAllLandsByAgencyQueries(queryPayload);
-
-  const { mutateAsync: deleteLand, isPending: isLandPending } = LandModule.deleteLandMutation({
-    mutationOptions: {
-      onSuccess: async () => {
-        setFilterValues(null);
-        await reloadLandsList();
-      },
-    },
-  });
 
   const landColumns: ColumnsDataTable[] = [
     { header: 'Terrain', accessor: 'title' },
@@ -106,20 +95,9 @@ export const LandList = () => {
             router.push(`${DASHBOARD_ROUTES.LAND.ADD}?landId=${data?.id}`);
           },
         },
-        {
-          name: 'delete',
-          handleClick(data) {
-            setOpenDelete(true);
-            setSelectedValues(data);
-          },
-        },
       ],
     },
   ];
-
-  const handleDeleteLand = async (data: any) => {
-    await deleteLand({ params: data });
-  };
 
   const handleFilter = async (values: FormikValues) => {
     setFilterValues({
@@ -192,13 +170,6 @@ export const LandList = () => {
         columns={landColumns}
         notFoundTitle="Aucun Terrain trouvé"
       />
-      <LandDelete
-        onChange={setOpenDelete}
-        isOpen={openDelete}
-        isLoading={isLandPending}
-        data={selectedValues}
-        callback={() => handleDeleteLand({})}
-      />
       <LandDetails
         onChange={setOpenDetails}
         isOpen={openDetails}
@@ -206,7 +177,6 @@ export const LandList = () => {
         isLoading={isLandLoad}
         callback={() => {
           setOpenDetails(false);
-          setOpenDelete(true);
         }}
       />
     </BaseContainer>
