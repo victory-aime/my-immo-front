@@ -59,7 +59,6 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_BACKEND_PATH: process.env.NEXT_PUBLIC_BACKEND_PATH,
-    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     API_BACKEND_URL: process.env.API_BACKEND_URL,
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
   },
