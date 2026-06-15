@@ -35,10 +35,21 @@ export const SignIn = () => {
           router.push(APP_ROUTES.REDIRECT);
         },
         onError(context) {
-          if (context.error.message?.includes('AbortError')) return;
+          const error = context.error;
+          if (
+            error.message?.includes('AuthCancelled') ||
+            error.message?.includes('NotAllowedError')
+          ) {
+            handleApiError({
+              message:
+                "L'authentification par passkey n'est actuellement pas disponible. Veuillez utiliser votre email et mot de passe.",
+              status: error.status,
+            });
+            return;
+          }
           handleApiError({
             message: 'Authentification par passkey échouée',
-            status: context.error.status,
+            status: error.status,
           });
         },
       },
