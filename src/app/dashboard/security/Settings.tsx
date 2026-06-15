@@ -216,8 +216,8 @@ export const Settings = () => {
                   )}
 
                   {(listPasskey?.length ?? 0) > 0 ? (
-                    <For each={listPasskey}>
-                      {(cred) => (
+                    <>
+                      {listPasskey?.map((cred) => (
                         <HStack
                           key={cred.id}
                           width={'full'}
@@ -253,8 +253,8 @@ export const Settings = () => {
                             </>
                           )}
                         </HStack>
-                      )}
-                    </For>
+                      ))}
+                    </>
                   ) : (
                     <BaseText mt={8}>{t('PROFILE.SECURITY.PASS_KEY_NO_FOUND')}</BaseText>
                   )}
@@ -292,8 +292,7 @@ export const Settings = () => {
                   description="PROFILE.SECURITY.ACTIVE_SESSIONS_DESC"
                   isLoading={userDataLoading}
                 >
-                  <For each={userSessionList}>
-                    {(session, idx) => (
+                  {userSessionList?.map((session, idx) => (
                       <HStack
                         key={idx}
                         width="full"
@@ -347,8 +346,7 @@ export const Settings = () => {
                         </BaseIcon>
                       )}
                     </HStack>
-                    )}
-                  </For>
+                    ))}
                 </ProfileForm>
               ) : (
                 <BaseText mt={8}>{t('PROFILE.SECURITY.NO_SESSIONS_FOUND')}</BaseText>
