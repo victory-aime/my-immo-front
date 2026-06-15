@@ -19,7 +19,7 @@ const APIS_ROUTES_MODULES_PATH = {
   },
   INVITATION: '/invitation',
   TEAM: '/team',
-  ANNONCES: '/annonces',
+  ANNONCES: '/announces',
   VISITS: '/visits',
   STATS: '/stats',
 };
@@ -314,7 +314,7 @@ export const APIS = (baseUrl?: string) => {
       DELETE_BUILDING: api({
         path: `${APIS_ROUTES_MODULES_PATH.BUILDING}/delete-building`,
         method: 'DELETE',
-
+        showResponse: false,
         pathBase: 'SECURED_API',
       }),
     },
@@ -436,14 +436,14 @@ export const APIS = (baseUrl?: string) => {
         method: 'POST',
       }),
       UPDATE: api({
-        path: `${APIS_ROUTES_MODULES_PATH.VISITS}/update-status`,
+        path: `${APIS_ROUTES_MODULES_PATH.VISITS}/update`,
         pathBase: 'SECURED_API',
         method: 'PATCH',
       }),
-      DELETE: api({
-        path: `${APIS_ROUTES_MODULES_PATH.VISITS}/delete`,
+      CANCEL_VISIT: api({
+        path: `${APIS_ROUTES_MODULES_PATH.VISITS}/cancel-visit`,
         pathBase: 'SECURED_API',
-        method: 'DELETE',
+        method: 'PATCH',
       }),
       ALL_BY_AGENCY: api({
         path: `${APIS_ROUTES_MODULES_PATH.VISITS}/agency-visits`,
@@ -459,13 +459,11 @@ export const APIS = (baseUrl?: string) => {
       }),
     },
     STATS: {
-        AGENCY: api({
-          path: `${APIS_ROUTES_MODULES_PATH.STATS}/agency`,
-          pathBase: 'SECURED_API',
-          method: 'GET',
+      AGENCY: api({
+        path: `${APIS_ROUTES_MODULES_PATH.STATS}/agency`,
+        pathBase: 'SECURED_API',
+        method: 'GET',
       }),
     },
-
-          
- };
+  };
 };

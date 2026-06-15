@@ -6,7 +6,10 @@ import { QUERIES } from 'rise-core-frontend';
 const getAllBuildingByAgencyQueries = (args: QUERIES.QueryPayload<MODELS.IBuildingFilter>) => {
   const { params, queryOptions } = args;
 
-  return QUERIES.useCustomQuery<MODELS.IPaginatedResponse<MODELS.IBuilding>>({
+  return QUERIES.useCustomQuery<
+    MODELS.IPaginatedResponse<MODELS.IBuilding>,
+    MODELS.IPaginatedResponse<MODELS.IBuilding>
+  >({
     queryKey: [Constants.BUILDING_KEYS.ALL_BUILDING_BY_AGENCY, params],
     queryFn: () => buildingServiceInstance().building_list(params as MODELS.IBuildingFilter),
     options: queryOptions,
@@ -37,7 +40,9 @@ const updateBuildingMutation = (
   });
 };
 
-const deleteBuildingMutation = (args: QUERIES.MutationPayload<MODELS.IDeleteBuilding>) => {
+const deleteBuildingMutation = (
+  args: QUERIES.MutationPayload<any, any, MODELS.IDeleteBuilding>,
+) => {
   return QUERIES.useCustomMutation({
     mutationKey: [Constants.BUILDING_KEYS.DELETE_BUILDING],
     mutationFn: ({ params }) => buildingServiceInstance().delete_building(params!),

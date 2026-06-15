@@ -1,27 +1,22 @@
 'use client';
 
-import { Box, SimpleGrid, Stack, Text, Spinner } from '@chakra-ui/react';
+import { Box, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { StatsModule } from '_store/state-management';
 import { useUserContext } from '_context/user-context';
 import BarChart from './components/BarChart';
 import LineChart from './components/LineChart';
 import DonutChart, { DonutDataItem } from './components/DonutChart';
-import KpiCard from './components/KpiCard';
-import DateRangePicker from './components/DateRangePicker';
 import { BaseContainer, BaseStats, Icons } from '_components/custom';
-import { useState } from 'react';
 
 export function StatsList() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { user } = useUserContext();
   const { data, isLoading } = StatsModule.getAgencyStats({
     params: { agencyId: user?.agencyId ?? '' },
     queryOptions: { enabled: !!user?.agencyId },
   });
 
-   const stats = [
-     
-       {
+  const stats = [
+    {
       label: 'Biens',
       value: data?.properties?.total ?? 0,
       description: 'Total des biens',
@@ -48,33 +43,6 @@ export function StatsList() {
       description: 'Demandes en cours',
       color: 'red.600',
       icon: <Icons.Ticket />,
-      
-    },
-    ];
-  const kpis = [ 
-    {
-      title: 'Biens',
-      value: data?.properties?.total ?? 0,
-      description: 'Total des biens',
-      color: 'green.600',
-    },
-    {
-      title: 'personne intéressées',
-      value: data?.leads?.total ?? 0,
-      description: 'Nouveaux prospects',
-      color: 'blue.600',
-    },
-    {
-      title: 'Visites',
-      value: data?.visits?.total ?? 0,
-      description: 'Visites planifiées',
-      color: 'purple.600',
-    },
-    {
-      title: 'Tickets',
-      value: data?.tickets?.total ?? 0,
-      description: 'Demandes en cours',
-      color: 'red.600',
     },
   ];
 
@@ -115,21 +83,19 @@ export function StatsList() {
   ];
 
   return (
-   
-      <BaseContainer title="Statistiques de l'agence" description="Vue d'ensemble des indicateurs clés de performance de votre agence immobilière"isFilterActive={isFilterOpen}onToggleFilter={()=>setIsFilterOpen(!isFilterOpen)} filterComponent={<DateRangePicker
-          onChange={({ startDate, endDate }) => {
-            console.log('Période sélectionnée', startDate, endDate); 
-          }}
-        />}  withActionButtons actionsButtonProps={{onToggleFilter(){}}}>
-      
-
+    <BaseContainer
+      title="Statistiques de l'agence"
+      description="Vue d'ensemble des indicateurs clés de performance de votre agence immobilière"
+      withActionButtons
+      actionsButtonProps={{ onToggleFilter() {} }}
+    >
       {isLoading ? (
         <Box py={20} textAlign="center">
           <Spinner size="xl" />
         </Box>
       ) : (
         <>
-          <SimpleGrid width={'full'} columns={{ base: 1, sm: 4, }} gap={4}>
+          <SimpleGrid width={'full'} columns={{ base: 1, sm: 4 }} gap={4}>
             {stats.map((kpi) => (
               <BaseStats
                 key={kpi.label}
@@ -137,7 +103,7 @@ export function StatsList() {
                 value={kpi.value}
                 icon={kpi.icon}
                 iconBgColor={kpi.color}
-                isLoading ={isLoading}
+                isLoading={isLoading}
               />
             ))}
           </SimpleGrid>
@@ -155,6 +121,6 @@ export function StatsList() {
           />
         </>
       )}
-      </BaseContainer>
+    </BaseContainer>
   );
 }

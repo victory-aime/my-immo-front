@@ -5,6 +5,7 @@ import { BaseToast, ToastStatus } from '_components/custom';
 import { toaster } from '_components/ui/toaster';
 import { retrySessionRequest } from '_utils/retrySessionRequest';
 import { authClient } from '../lib/auth-client';
+import { clientReload } from '_utils/client-navigate';
 
 const SessionContext = createContext<
   | {
@@ -38,12 +39,14 @@ export function SessionRefreshProvider({
       asPromise: {
         promise: retrySessionRequest()
           .then(async () => {
-            await refetchSession();
             BaseToast({
               id: `${toastId}-final`,
               title: 'Connexion rétablie',
               description: 'Votre session est active.',
               type: ToastStatus.SUCCESS,
+            });
+            await refetchSession().then(() => {
+              clientReload();
             });
           })
           .catch(() =>

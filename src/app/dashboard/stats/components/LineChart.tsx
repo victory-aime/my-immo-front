@@ -1,7 +1,16 @@
 ﻿'use client';
 
 import { Chart, useChart } from '@chakra-ui/charts';
-import { Line, LineChart as RechartsLineChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
+import {
+  Line,
+  LineChart as RechartsLineChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Legend,
+} from 'recharts';
 import { Box, Text } from '@chakra-ui/react';
 import { CustomSkeletonLoader } from '_components/custom';
 import { NoDataAnimation } from '_components/custom/data-table/NoDataAnimation';
@@ -35,7 +44,7 @@ export default function LineChart({ title, data, xKey, series, isLoading }: Line
   }
 
   return (
-    <Box bg="white" p={5} borderRadius="2xl" shadow="sm" width="full">
+    <Box p={5} borderRadius="2xl" shadow="sm" width="full">
       <Text fontSize="lg" fontWeight="bold" mb={4}>
         {title}
       </Text>

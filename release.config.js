@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ['main', { name: 'uat', prerelease: 'uat' }, { name: 'develop', prerelease: 'dev' }],
+  branches: ['main', { name: 'uat', prerelease: 'uat' }],
   plugins: [
     [
       '@semantic-release/commit-analyzer',

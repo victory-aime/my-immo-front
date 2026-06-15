@@ -83,6 +83,7 @@ interface CheckBoxProps extends HTMLChakraProps<'label'> {
   isReadOnly?: boolean;
   items?: {
     name?: string;
+    label?: string;
     value?: string;
   }[];
 }
@@ -106,12 +107,18 @@ interface FormDatePickerFieldProps extends DatePickerRootProps {
   isLoading?: boolean;
   isDisabledPassDates?: boolean;
   isDisabledWeekDates?: boolean;
-  name: string;
+  name?: string;
   label?: string;
   mode?: 'single' | 'range' | 'multiple';
   startMonth?: Date;
   endMonth?: Date;
+  required?: boolean;
 }
+
+interface FormDateTimePickerProps extends DatePickerRootProps, FormDatePickerFieldProps {
+  stopPropagation?: boolean;
+}
+
 type DatePickerInputContainerProps = DatePickerInputProps & {
   isError?: boolean;
 };
@@ -145,4 +152,5 @@ export type {
   PhoneInputProps,
   countriesList,
   DatePickerInputContainerProps,
+  FormDateTimePickerProps,
 };

@@ -4,31 +4,25 @@ import {
   BaseContainer,
   BaseTag,
   BaseText,
-  BaseToast,
   ColumnsDataTable,
   DataTableContainer,
-  ToastStatus,
 } from '_components/custom';
 import { useMemo, useState } from 'react';
 import { BuildingFilter } from './BuildingFilter';
-import { LandModule, BuildingModule } from '_store/state-management';
+import { BuildingModule } from '_store/state-management';
 import { useRouter } from 'next/navigation';
 import { DASHBOARD_ROUTES } from '../../routes';
 import { CONSTANTS, MODELS } from '_types/*';
 import { BuildingDelete } from './BuildingDelete';
 import { BuildingDetails } from './BuildingDetail';
 import { FormikValues } from 'formik';
-import { useTranslation } from 'react-i18next';
 import { BuildingStatsCard } from './BuildingStats';
 import { useUserContext } from '_context/user-context';
 
 export const BuildingList = () => {
   const router = useRouter();
-  const { t } = useTranslation();
   const { user: currentUser } = useUserContext();
   const [currentPage, setCurrentPage] = useState(1);
-  
-  const [exportLoading, setExportLoading] = useState(false);
   const [toggleFilter, setToggleFilter] = useState<boolean>(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
@@ -57,6 +51,7 @@ export const BuildingList = () => {
   const {
     data: allBuildings,
     isLoading: isBuildingLoad,
+    isFetching,
     refetch: reloadBuildingList,
   } = BuildingModule.getAllBuildingByAgencyQueries(queryPayload);
 
@@ -155,22 +150,6 @@ export const BuildingList = () => {
     setCurrentPage(page);
   };
 
-  const handleExportPdf = async () => {
-    if (allBuildings?.content?.length === 0) {
-      return BaseToast({
-        title: 'Export impossible',
-        description: "Vous ne pouvez pas exporter la liste car vous ne disposer d'aucun bâtiment",
-        type: ToastStatus.INFO,
-      });
-    }
-    setExportLoading(true);
-    const translatedColumns = buildingColumns.map((col) => ({
-      ...col,
-      header: t(col.header),
-    }));
-   
-  };
-
   return (
     <BaseContainer
       title="Gestion des Bâtiments"
@@ -188,6 +167,7 @@ export const BuildingList = () => {
           }}
           data={filterValues}
           callback={handleFilter}
+          isLoading={isBuildingLoad || isFetching}
         />
       }
       actionsButtonProps={{
@@ -195,9 +175,6 @@ export const BuildingList = () => {
         downloadTitle: `Exporter PDF (${allBuildings?.content?.length ?? 0})`,
         onClick() {
           router.push(DASHBOARD_ROUTES.BUILDING.ADD);
-        },
-        onDownload: async () => {
-          await handleExportPdf().then(() => !exportLoading);
         },
         onReload: async () => {
           await reloadBuildingList();
@@ -207,10 +184,13 @@ export const BuildingList = () => {
         },
       }}
     >
-      <BuildingStatsCard buildings={allBuildings?.content ?? []} isLoading={isBuildingLoad} />
+      <BuildingStatsCard
+        buildings={allBuildings?.content ?? []}
+        isLoading={isBuildingLoad || isFetching}
+      />
 
       <DataTableContainer
-        isLoading={isBuildingLoad}
+        isLoading={isBuildingLoad || isFetching}
         data={allBuildings?.content ?? []}
         paginationData={{
           lazy: true,
@@ -234,7 +214,7 @@ export const BuildingList = () => {
         callback={() =>
           handleDeleteBuilding({
             agencyId: agencyId!,
-
+            userId: userId!,
             id: selectedValues?.id!,
           })
         }
@@ -243,7 +223,7 @@ export const BuildingList = () => {
         onChange={setOpenDetails}
         isOpen={openDetails}
         data={selectedValues}
-        isLoading={isBuildingLoad}
+        isLoading={isBuildingLoad || isFetching}
         callback={() => {
           setOpenDetails(false);
           setOpenDelete(true);

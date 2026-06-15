@@ -37,6 +37,7 @@ import {
   IoIosGitPullRequest,
   IoIosHelpCircle,
   IoIosTrendingUp,
+  IoMdFingerPrint,
 } from 'react-icons/io';
 import {
   IoBarChartOutline,
@@ -71,9 +72,9 @@ import { GoZap } from 'react-icons/go';
 import { BiWorld } from 'react-icons/bi';
 import { FiMinus, FiTarget } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
-import { IoTicket } from "react-icons/io5";
-import { MdOutlineQueryStats } from "react-icons/md";
-import { IoStatsChartSharp } from "react-icons/io5";
+import { IoTicket } from 'react-icons/io5';
+import { MdOutlineQueryStats } from 'react-icons/md';
+import { IoStatsChartSharp } from 'react-icons/io5';
 
 export const Icons = {
   MapPin: CiMapPin,
@@ -163,4 +164,5 @@ export const Icons = {
   Ticket: IoTicket,
   QueryStats: MdOutlineQueryStats,
   StatsChart: IoStatsChartSharp,
+  FingerPrint: IoMdFingerPrint,
 };

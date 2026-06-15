@@ -9,11 +9,7 @@ import {
   BaseText,
   Icons,
 } from '_components/custom';
-import {
-  NotificationsModule,
-  PropertyModule,
-  RentalAgreementModule,
-} from '_store/state-management';
+import { NotificationsModule, PropertyModule } from '_store/state-management';
 import { ENUM } from '_types/*';
 import { OccupationRateByType } from './OccupationRateByType';
 import { MonthlyRevenueAreaChart } from './MonthlyRevenueAreaChart';
@@ -30,6 +26,7 @@ export const DashboardStats = () => {
   const { push } = useRouter();
   const { vars } = useAppTheme();
   const { user } = useUserContext();
+  const router = useRouter();
   const agencyId = user?.agencyId;
   const userId = user?.ownerId ?? user?.staffId;
 
@@ -49,19 +46,6 @@ export const DashboardStats = () => {
   const { data: allProperties, isLoading: propertiesLoad } =
     PropertyModule.getAllPropertiesByAgency(queryPayload);
 
-  const { data: occupationRateData, isLoading: occupationRateLoad } =
-    PropertyModule.getOccupationRateByTypeQueries(queryPayload);
-
-  const { data: monthlyRevenueData, isLoading: monthlyRevenueLoad } =
-    PropertyModule.getMonthlyRevenueQueries({
-      queryOptions: { enabled: false },
-    });
-
-  const { data: allRentalAgreement, isLoading: rentalAgreementLoad } =
-    RentalAgreementModule.getRentalAgreementListByAgencyQueries({
-      queryOptions: { enabled: false },
-    });
-
   const {
     data: allActivities,
     refetch: refetchNotificationList,
@@ -72,7 +56,7 @@ export const DashboardStats = () => {
   });
 
   const revenues = allProperties?.content?.reduce(
-    (acc, p) => {
+    (acc: { revenue: number }, p: { status: ENUM.COMMON.Status; price: number }) => {
       if (p.status !== ENUM.COMMON.Status.AVAILABLE) {
         acc.revenue += Number(p.price ?? 0);
       }
@@ -88,15 +72,6 @@ export const DashboardStats = () => {
       icon: <Icons.RiBuildingLine />,
     },
     {
-      title: 'Locataires Actifs',
-      value:
-        allRentalAgreement?.content?.filter(
-          (rental) => rental?.status === ENUM.COMMON.Status.ACTIVE,
-        ).length ?? 0,
-      icon: <Icons.FaUsers />,
-      iconBgColor: 'secondary.500',
-    },
-    {
       title: 'Revenues Mensuels',
       value: revenues?.revenue ?? 0,
       isNumber: true,
@@ -105,29 +80,6 @@ export const DashboardStats = () => {
       iconBgColor: 'tertiary.500',
     },
   ];
-
-  // const cashout = async () => {
-  //   const response = await fetch('https://api.naboopay.com/api/v2/payouts', {
-  //     method: 'POST',
-  //     headers: {
-  //       Authorization: `Bearer ${process.env.NEXT_PUBLIC_NABOO_PAY_API_KEY}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       selected_payment_method: 'wave',
-  //       amount: 100,
-  //       recipient: {
-  //         first_name: 'Aminata',
-  //         last_name: 'Diba',
-  //         phone: '+221786068122',
-  //       },
-  //       reason: 'Invoice payment',
-  //     }),
-  //   });
-
-  //   const data = await response.json();
-  //   console.log(data);
-  // };
 
   const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -151,6 +103,7 @@ export const DashboardStats = () => {
       occupationRate: random(20, 100),
     }));
   };
+
   return (
     <BaseContainer
       title="Tableau de bord"
@@ -164,37 +117,37 @@ export const DashboardStats = () => {
         </BaseText>
       }
       border={'none'}
-      // withActionButtons
-      // actionsButtonProps={{
-      //   validateTitle: 'Payer aminata',
-      //   onClick: async () => {
-      //     await cashout();
-      //   },
-      // }}
     >
-      <SimpleGrid data-tour="kpis" columns={3} mt={10} width={'full'} gap={3}>
+      <SimpleGrid data-tour="kpis" columns={2} mt={10} width={'full'} gap={3}>
         <For each={stats}>
           {(stat, i) => (
             <Flex key={i}>
-              <BaseStats key={i} {...stat} isLoading={propertiesLoad || rentalAgreementLoad} />
+              <BaseStats key={i} {...stat} isLoading={propertiesLoad} />
             </Flex>
           )}
         </For>
       </SimpleGrid>
 
       <Flex width={'full'} gap={3} flexDir={{ base: 'column', sm: 'row' }} data-tour="charts">
-        <MonthlyRevenueAreaChart
-          data={generateMonthlyRevenueStats()}
-          isLoading={occupationRateLoad}
-        />
-        <OccupationRateByType data={generateOccupationRateStats()} isLoading={occupationRateLoad} />
+        <MonthlyRevenueAreaChart data={generateMonthlyRevenueStats()} isLoading={propertiesLoad} />
+        <OccupationRateByType data={generateOccupationRateStats()} isLoading={propertiesLoad} />
       </Flex>
-      <BaseContainer title="Activite recente" data-tour="activity">
+      <BaseContainer
+        title="Activite recente"
+        data-tour="activity"
+        withActionButtons
+        actionsButtonProps={{
+          validateTitle: `Voir plus ${allActivities?.length}`,
+          onClick: () => router.push(DASHBOARD_ROUTES.NOTIFICATION),
+        }}
+      >
         <Stack mt={{ base: '0', sm: '30px' }} width={'full'}>
           <RenderNotifications
             refetchNotificationList={refetchNotificationList}
             list={allActivities ?? []}
             isLoading={notificationLoad}
+            isSlice
+            displayLength={4}
           />
         </Stack>
       </BaseContainer>
@@ -229,7 +182,7 @@ export const DashboardStats = () => {
               borderColor: 'orange.500',
             },
             {
-              title: 'Envoyer une invitation',
+              title: 'Ajouter un membre de votre équipe',
               link: DASHBOARD_ROUTES.INVITATIONS.ADD,
               icon: Icons.SendMail,
               color: 'success.100',
