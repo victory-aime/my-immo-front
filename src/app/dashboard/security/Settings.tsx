@@ -13,6 +13,7 @@ import {
   Icons,
   DeleteModalAnimation,
   BaseTag,
+  GlobalLoader,
 } from '_components/custom';
 import { Formik } from 'formik';
 import { ProfileForm } from '../profile/components/ProfileForm';
@@ -165,6 +166,8 @@ export const Settings = () => {
     fetchUserSessions();
   }, []);
 
+  if (!currentUser || (!userSessionList && !listPasskey)) return <GlobalLoader loader />;
+
   return (
     <>
       <Formik
@@ -213,8 +216,8 @@ export const Settings = () => {
                   )}
 
                   {(listPasskey?.length ?? 0) > 0 ? (
-                    <For each={listPasskey}>
-                      {(cred) => (
+                    <>
+                      {listPasskey?.map((cred) => (
                         <HStack
                           key={cred.id}
                           width={'full'}
@@ -250,8 +253,8 @@ export const Settings = () => {
                             </>
                           )}
                         </HStack>
-                      )}
-                    </For>
+                      ))}
+                    </>
                   ) : (
                     <BaseText mt={8}>{t('PROFILE.SECURITY.PASS_KEY_NO_FOUND')}</BaseText>
                   )}
@@ -283,13 +286,13 @@ export const Settings = () => {
                 </ProfileForm>
               )}
 
-              <ProfileForm
-                title="PROFILE.SECURITY.ACTIVE_SESSIONS"
-                description="PROFILE.SECURITY.ACTIVE_SESSIONS_DESC"
-                isLoading={userDataLoading}
-              >
-                <For each={userSessionList}>
-                  {(session, idx) => (
+              {(userSessionList?.length ?? 0) > 0 ? (
+                <ProfileForm
+                  title="PROFILE.SECURITY.ACTIVE_SESSIONS"
+                  description="PROFILE.SECURITY.ACTIVE_SESSIONS_DESC"
+                  isLoading={userDataLoading}
+                >
+                  {userSessionList?.map((session, idx) => (
                     <HStack
                       key={idx}
                       width="full"
@@ -343,9 +346,11 @@ export const Settings = () => {
                         </BaseIcon>
                       )}
                     </HStack>
-                  )}
-                </For>
-              </ProfileForm>
+                  ))}
+                </ProfileForm>
+              ) : (
+                <BaseText mt={8}>{t('PROFILE.SECURITY.NO_SESSIONS_FOUND')}</BaseText>
+              )}
 
               <ProfileForm
                 title="PROFILE.DANGER_ZONE.TITLE"
