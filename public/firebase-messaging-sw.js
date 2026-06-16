@@ -18,5 +18,32 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(payload.data?.title ?? payload.data?.title ?? 'Notification', {
     body: payload.notification?.body ?? payload.data?.body,
     icon: '/assets/apple-touch-icon.png',
+    data: {
+      notificationId: payload.data?.notificationId,
+      type: payload.data?.type,
+    },
   });
+});
+
+self.addEventListener('notificationclick', (event) => {
+  const url = new URL(`/dashboard/notifications/`, self.location.origin).href;
+  event.waitUntil(
+    clients
+      .matchAll({
+        type: 'window',
+        includeUncontrolled: true,
+      })
+      .then(async (clientList) => {
+        for (const client of clientList) {
+          if ('focus' in client) {
+            client.focus();
+            client.postMessage({
+              type: 'NOTIFICATION_CLICK',
+            });
+            return;
+          }
+        }
+        return clients.openWindow(url);
+      }),
+  );
 });

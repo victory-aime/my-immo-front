@@ -1,10 +1,8 @@
 'use client';
 
-import { Box, Flex, Text } from '@chakra-ui/react';
-import { BaseButton } from '_components/custom';
-import { useColorMode } from '_components/ui/color-mode';
-import { EmailContainer } from './email-container';
-import { MotionBox } from '_constants/motion';
+import { Flex, Text, Box } from '@chakra-ui/react';
+import { BaseButton, BaseIcon, Icons } from '_components/custom';
+import { MotionFlex } from '_constants/motion';
 
 export const RequestUserPushNotifPermission = ({
   enablePermission,
@@ -15,63 +13,63 @@ export const RequestUserPushNotifPermission = ({
   dismiss?: () => void;
   isLoading: boolean;
 }) => {
-  const { colorMode } = useColorMode();
   return (
-    <MotionBox
-      initial={{ y: -20, opacity: 0 }}
+    <MotionFlex
+      initial={{ y: -8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      exit={{ y: -20, opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      exit={{ y: -8, opacity: 0 }}
+      transition={{ duration: 0.2 }}
       position="absolute"
-      top="44px"
-      left="0"
-      right="0"
+      top="24px"
       zIndex="50"
-      px={8}
+      px={4}
+      w="full"
+      justifyContent="center"
     >
       <Box
-        bg={colorMode === 'light' ? 'red.50' : 'red.900'}
+        maxW="calc(100vw - 2rem)"
+        _dark={{ bg: 'gray.800' }}
         border="1px solid"
-        borderColor={colorMode === 'light' ? 'red.200' : 'red.400'}
-        rounded="xl"
-        shadow="sm"
-        px={5}
-        py={3}
+        borderColor="border"
+        borderRadius="2xl"
+        boxShadow="xl"
+        p={4}
       >
-        <Flex
-          align="center"
-          justify="space-between"
-          gap={4}
-          flexDir={{ base: 'column', sm: 'row' }}
-        >
-          <Text
-            fontSize={{ base: 'sm', sm: 'md' }}
-            color={colorMode === 'light' ? 'red.700' : 'white'}
-          >
-            Votre email n'est pas encore vérifié. Vérifiez votre boîte mail pour activer votre
-            compte.
-          </Text>
+        {/* Header */}
+        <Flex align="center" gap={3}>
+          <BaseIcon>
+            <Icons.Bell size={18} />
+          </BaseIcon>
 
+          <Box flex={1} minW={0}>
+            <Text fontSize="sm" fontWeight="600" color="fg">
+              Restez informé en temps réel
+            </Text>
+            <Text fontSize="xs" color="fg.muted">
+              Activez les notifications push
+            </Text>
+          </Box>
+        </Flex>
+
+        {/* Actions */}
+        <Flex mt={4} justify="flex-end" gap={2}>
           <BaseButton
-            variant={'outline'}
-            colorType="success"
+            variant="plain"
+            size="sm"
             onClick={dismiss}
-            width={{ base: 'full', sm: 'fit-content' }}
-            isLoading={isLoading}
+            color="fg.muted"
+            fontSize="xs"
+            px={2}
+            isDisabled={isLoading}
           >
             Plus tard
           </BaseButton>
-          <BaseButton
-            variant={'outline'}
-            colorType="success"
-            onClick={enablePermission}
-            width={{ base: 'full', sm: 'fit-content' }}
-            isLoading={isLoading}
-          >
+
+          <BaseButton size="sm" onClick={enablePermission} fontSize="xs" isLoading={isLoading}>
             Activer
           </BaseButton>
         </Flex>
       </Box>
-    </MotionBox>
+    </MotionFlex>
   );
 };

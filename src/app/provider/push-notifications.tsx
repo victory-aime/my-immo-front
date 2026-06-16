@@ -1,12 +1,15 @@
 'use client';
 
 import React, { createContext, useCallback, useContext } from 'react';
-import { usePushNotifications } from '_hooks/usePushNotifications';
+import { clearPushStorage, usePushNotifications } from '_hooks/usePushNotifications';
 import { useUserContext } from '_context/user-context';
 import { NotificationsModule } from '_store/state-management';
+import { StorageKey } from '_constants/StorageKeys';
 
 type PushNotificationsContextType = {
   enableNotifications: () => Promise<void>;
+  disableNotifications: () => Promise<void>;
+  isPending?: boolean;
 };
 
 const PushNotificationsContext = createContext<PushNotificationsContextType | null>(null);
@@ -14,14 +17,17 @@ const PushNotificationsContext = createContext<PushNotificationsContextType | nu
 export function PushNotificationsProvider({ children }: { children: React.ReactNode }) {
   const { user } = useUserContext();
 
-  const { mutateAsync: registerPushToken } = NotificationsModule.registerFcmTokenMutation({});
+  const { mutateAsync: registerPushToken, isPending: enabledPending } =
+    NotificationsModule.registerFcmTokenMutation({});
+  const { mutateAsync: removeFcmToken, isPending: disablePending } =
+    NotificationsModule.removeFcmTokenMutation({});
 
   const handleTokenReady = useCallback(
-    async (fcmToken: string) => {
+    async (fcmToken: string, deviceKey: string) => {
       if (!user?.id) return;
 
       await registerPushToken({
-        payload: { token: fcmToken },
+        payload: { token: fcmToken, deviceKey },
         params: { userId: user.id },
       });
     },
@@ -33,8 +39,22 @@ export function PushNotificationsProvider({ children }: { children: React.ReactN
     onTokenReady: handleTokenReady,
   });
 
+  const disableNotifications = useCallback(async () => {
+    const storedToken = localStorage.getItem(StorageKey.FCM_TOKEN_STORAGE_KEY);
+    if (storedToken) {
+      await removeFcmToken({ params: { token: storedToken } });
+    }
+    clearPushStorage();
+  }, [removeFcmToken]);
+
   return (
-    <PushNotificationsContext.Provider value={{ enableNotifications }}>
+    <PushNotificationsContext.Provider
+      value={{
+        enableNotifications,
+        disableNotifications,
+        isPending: enabledPending || disablePending,
+      }}
+    >
       {children}
     </PushNotificationsContext.Provider>
   );

@@ -1,7 +1,6 @@
 import { SidebarNavGroupProps } from '../types';
 import { DASHBOARD_ROUTES } from '../../../routes';
 import { Icons } from '_components/custom';
-import { title } from 'process';
 
 export const ALL_CSA_ROUTES: SidebarNavGroupProps[] = [
   {
