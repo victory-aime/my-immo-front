@@ -36,4 +36,12 @@ export class NotificationsService extends BaseApi {
       { params: data },
     );
   }
+
+  register_fcm_token(userId: string, token: string) {
+    return this.apiService.invoke(
+      this.applicationContext.getApiConfig().NOTIFICATION.REGISTER_TOKEN,
+      { token },
+      { params: { userId } },
+    );
+  }
 }
