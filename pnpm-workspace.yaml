@@ -1,6 +1,8 @@
 allowBuilds:
-  '@swc/core': true
-  esbuild: true
-  sharp: true
-minimumReleaseAgeExclude:
-  - rise-core-frontend@4.4.11
+  '@firebase/util': set this to true or false
+  '@prisma/engines': false
+  '@swc/core': false
+  esbuild: false
+  prisma: false
+  protobufjs: set this to true or false
+  sharp: false

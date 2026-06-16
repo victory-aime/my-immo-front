@@ -10,6 +10,7 @@ const APIS_ROUTES_MODULES_PATH = {
   RENTAL_AGREEMENT: '/rental-agreement',
   CHAT: '/chat',
   NOTIFICATION: '/notif',
+  PUSH_NOTIFICATIONS: '/push-notification',
   BUILDING: '/building',
   LAND: '/land',
   COMMON: {
@@ -287,6 +288,13 @@ export const APIS = (baseUrl?: string) => {
 
       READ_ONE: api({
         path: `${APIS_ROUTES_MODULES_PATH.NOTIFICATION}/read`,
+        method: 'POST',
+        pathBase: 'SECURED_API',
+        showResponse: false,
+      }),
+
+      REGISTER_TOKEN: api({
+        path: `${APIS_ROUTES_MODULES_PATH.PUSH_NOTIFICATIONS}/register-token`,
         method: 'POST',
         pathBase: 'SECURED_API',
         showResponse: false,

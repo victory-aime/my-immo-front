@@ -13,8 +13,10 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  self.registration.showNotification(payload.notification.title || 'Notification', {
-    body: payload.notification.body,
+  console.log('[SW] Background payload', payload);
+
+  self.registration.showNotification(payload.data?.title ?? payload.data?.title ?? 'Notification', {
+    body: payload.notification?.body ?? payload.data?.body,
     icon: '/assets/apple-touch-icon.png',
   });
 });

@@ -293,13 +293,13 @@ export const Settings = () => {
                   isLoading={userDataLoading}
                 >
                   {userSessionList?.map((session, idx) => (
-                      <HStack
-                        key={idx}
-                        width="full"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        py={2}
-                      >
+                    <HStack
+                      key={idx}
+                      width="full"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      py={2}
+                    >
                       <VStack gap={1} width="full" align="stretch">
                         <HStack>
                           <BaseText fontWeight="bold">
@@ -346,7 +346,7 @@ export const Settings = () => {
                         </BaseIcon>
                       )}
                     </HStack>
-                    ))}
+                  ))}
                 </ProfileForm>
               ) : (
                 <BaseText mt={8}>{t('PROFILE.SECURITY.NO_SESSIONS_FOUND')}</BaseText>
