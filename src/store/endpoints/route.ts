@@ -292,10 +292,15 @@ export const APIS = (baseUrl?: string) => {
         pathBase: 'SECURED_API',
         showResponse: false,
       }),
-
       REGISTER_TOKEN: api({
         path: `${APIS_ROUTES_MODULES_PATH.PUSH_NOTIFICATIONS}/register-token`,
         method: 'POST',
+        pathBase: 'SECURED_API',
+        showResponse: false,
+      }),
+      REMOVE_TOKEN: api({
+        path: `${APIS_ROUTES_MODULES_PATH.PUSH_NOTIFICATIONS}/remove-token`,
+        method: 'DELETE',
         pathBase: 'SECURED_API',
         showResponse: false,
       }),

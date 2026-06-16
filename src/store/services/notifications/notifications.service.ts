@@ -37,11 +37,17 @@ export class NotificationsService extends BaseApi {
     );
   }
 
-  register_fcm_token(userId: string, token: string) {
+  register_fcm_token(userId: string, data: { token: string; deviceKey: string }) {
     return this.apiService.invoke(
       this.applicationContext.getApiConfig().NOTIFICATION.REGISTER_TOKEN,
-      { token },
+      data,
       { params: { userId } },
+    );
+  }
+  remove_fcm_token(token: string) {
+    return this.apiService.invoke(
+      this.applicationContext.getApiConfig().NOTIFICATION.REMOVE_TOKEN,
+      { params: { token } },
     );
   }
 }

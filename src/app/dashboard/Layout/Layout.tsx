@@ -12,20 +12,22 @@ import { useBreakpointValue } from '@chakra-ui/react';
 import { tourSteps } from '_constants/tourStep';
 import { StorageKey } from '_constants/StorageKeys';
 import { EmailNotVerifiedBanner } from './banner/EmailNotVerified';
-import { BaseModal, BaseText, BaseToast, Icons } from '_components/custom';
+import { BaseModal, BaseText, Icons } from '_components/custom';
 import { EmailVerifiedSuccessBanner } from './banner/EmailVerifiedSuccessBanner';
 import { AuthModule } from '_store/state-management';
 import { useUserContext } from '_context/user-context';
 import { useAuth } from '_hooks/useAuth';
 import { ENUM } from '_types/*';
-import { firebaseMessaging } from '../../lib/firebase';
-import { onMessage } from 'firebase/messaging';
 import { usePushNotificationsContext } from '../../provider/push-notifications';
 import { RequestUserPushNotifPermission } from './banner/request-notif-perm';
+import { useRouter } from 'next/navigation';
+import { DASHBOARD_ROUTES } from '../routes';
+import { shouldShowPushBanner } from '../../helpers/push-notif';
 
 export const Layout: FunctionComponent<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  const router = useRouter();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { logout } = useAuth();
@@ -33,7 +35,9 @@ export const Layout: FunctionComponent<{
   const { user: currentUser, isLoading: currentUserLoad } = useUserContext();
   const [showTour, setShowTour] = useState(false);
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
-  const [showEnabledPushNotification, setShowEnabledPushNotification] = useState(false);
+  const [showEnabledPushNotification, setShowEnabledPushNotification] = useState(() => {
+    return shouldShowPushBanner();
+  });
   const isInactiveUser = !currentUserLoad && currentUser?.status === ENUM.COMMON.Status.INACTIVE;
   const { enableNotifications } = usePushNotificationsContext();
   const isShowEmailNotVerifiedBanner = !currentUserLoad && !currentUser?.emailVerified;
@@ -94,19 +98,23 @@ export const Layout: FunctionComponent<{
   useEffect(() => {
     if (!user?.id) return;
 
-    switch (Notification.permission) {
-      case 'granted':
-        enableNotifications();
-        break;
-
-      case 'default':
-        setShowEnabledPushNotification(true);
-        break;
-
-      case 'denied':
-        break;
+    if (Notification.permission === 'granted') {
+      setShowEnabledPushNotification(false);
+      localStorage.removeItem(StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE);
+      return;
     }
+
+    if (Notification.permission === 'denied') {
+      setShowEnabledPushNotification(false);
+    }
+    setShowEnabledPushNotification(shouldShowPushBanner());
   }, [user?.id]);
+
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data?.type === 'NOTIFICATION_CLICK') {
+      router.push(`${DASHBOARD_ROUTES.NOTIFICATION}`);
+    }
+  });
 
   if (currentUserLoad) return null;
 
@@ -147,9 +155,18 @@ export const Layout: FunctionComponent<{
             {showEnabledPushNotification && (
               <RequestUserPushNotifPermission
                 enablePermission={() =>
-                  enableNotifications().then(() => setShowEnabledPushNotification(false))
+                  enableNotifications().then(() => {
+                    setShowEnabledPushNotification(false);
+                    localStorage.removeItem(StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE);
+                  })
                 }
-                dismiss={() => setShowEnabledPushNotification(false)}
+                dismiss={() => {
+                  localStorage.setItem(
+                    StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE,
+                    String(Date.now()),
+                  );
+                  setShowEnabledPushNotification(false);
+                }}
                 isLoading={isPending}
               />
             )}

@@ -1,6 +1,6 @@
 'use client';
 import { BaseTabs, Icons } from '_components/custom';
-import { NotificationsModule, UserModule } from '_store/state-management';
+import { NotificationsModule } from '_store/state-management';
 import { useMemo } from 'react';
 import { RenderNotifications } from './RenderNotifications';
 import { useUserContext } from '_context/user-context';
@@ -34,8 +34,8 @@ export const NotificationsList = () => {
     const all = notificationsList ?? [];
     return {
       allRequests: all,
-      unreadRequests: all?.filter((r) => r.isRead === false),
-      readRequests: all.filter((r) => r.isRead === true),
+      unreadRequests: all?.filter((r: { isRead: boolean }) => !r.isRead),
+      readRequests: all.filter((r: { isRead: boolean }) => r.isRead),
     };
   }, [notificationsList]);
 

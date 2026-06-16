@@ -1,7 +1,7 @@
 'use client';
 
-import { Flex, HStack, parseColor, VStack } from '@chakra-ui/react';
-import { BaseButton, FormTextInput } from '_components/custom';
+import { Box, Flex, HStack, parseColor, VStack } from '@chakra-ui/react';
+import { BaseButton, BaseSwitch, BaseText, FormTextInput, TextVariant } from '_components/custom';
 import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,20 +12,21 @@ import { ProfileForm } from './ProfileForm';
 import { MODELS } from '_types/index';
 import { useAuthContext } from '_context/auth-context';
 import { ENUM } from '_types/';
-import { ProviderKeys } from '_constants/StorageKeys';
+import { ProviderKeys, StorageKey } from '_constants/StorageKeys';
 import { FormGroupColorPicker } from '_components/custom/form/FormGroupColorPicker';
 import { rgbaToHex } from '_utils/rgbaToHex';
 import { ColorMode, useColorMode } from '_components/ui/color-mode';
 import { AppearanceThemeSelector } from './AppearanceThemeSelector';
-import { UpdateEmailModal } from './UpdateEmail';
-import { authClient } from '../../../lib/auth-client';
 import { useAppTheme } from '_context/theme-context';
+import { usePushNotificationsContext } from '../../../provider/push-notifications';
 
 export const ProfileInfo = () => {
   const { t } = useTranslation();
   const { session } = useAuthContext();
   const { colorMode, setColorMode } = useColorMode();
   const { primaryColor } = useAppTheme();
+  const { enableNotifications, disableNotifications, isPending } = usePushNotificationsContext();
+  const [enabled, setEnabled] = useState(Notification.permission === 'granted');
   const [themeColor, setThemeColor] = useState<string | null>(primaryColor);
   const [emailHasChanged, setEmailHasChanged] = useState<boolean>(false);
   const [pendingValues, setPendingValues] = useState<MODELS.IUser | null>(null);
@@ -80,7 +81,6 @@ export const ProfileInfo = () => {
 
   // const handleConfirmEmailChange = async () => {
   //   if (!pendingValues) return;
-
   //   try {
   //     // 🔥 appel Better Auth
   //     await authClient.changeEmail({
@@ -93,6 +93,16 @@ export const ProfileInfo = () => {
   //     console.error('Erreur changeEmail', error);
   //   }
   // };
+
+  const handleToggle = async (on: boolean) => {
+    if (on) await enableNotifications();
+    else {
+      await disableNotifications().then(() => {
+        localStorage.setItem(StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE, String(Date.now()));
+      });
+    }
+    setEnabled(on);
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -120,7 +130,7 @@ export const ProfileInfo = () => {
                 description="PROFILE.PERSONAL_INFO"
                 isLoading={userDataLoading}
               >
-                <VStack gap={4} alignItems="flex-start" mt={10}>
+                <VStack gap={4} alignItems="flex-start">
                   <HStack width="full" gap={4}>
                     <FormTextInput
                       name="name"
@@ -147,6 +157,28 @@ export const ProfileInfo = () => {
                     }
                   />
                 </VStack>
+              </ProfileForm>
+              <ProfileForm
+                title="Notifications"
+                description="Recevez des alertes en temps réel sur les messages, mises à jour et activités importantes."
+                activeBadge={enabled}
+                isLoading={userDataLoading || isPending}
+              >
+                <HStack gap={3} alignItems={'flex-start'}>
+                  <BaseSwitch
+                    onSwitchChange={handleToggle}
+                    isChecked={enabled}
+                    isDisabled={isPending}
+                    isLoading={userDataLoading || isPending}
+                  />
+                  <Box>
+                    <BaseText variant={TextVariant.S}>Activer les notifications</BaseText>
+                    <BaseText variant={TextVariant.XS} color={'gray.500'}>
+                      Soyez notifié instantanément lorsque quelque chose d’important se passe dans
+                      votre compte
+                    </BaseText>
+                  </Box>
+                </HStack>
               </ProfileForm>
               <ProfileForm
                 title="Thème de couleur"

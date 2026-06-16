@@ -62,10 +62,17 @@ const registerFcmTokenMutation = (
     }
   >,
 ) => {
-  return QUERIES.useCustomMutation<{ token: string }, any, { userId: string }>({
+  return QUERIES.useCustomMutation<{ token: string; deviceKey: string }, any, { userId: string }>({
     mutationKey: [Constants.NOTIFICATIONS_KEYS.REGISTER_TOKEN],
     mutationFn: ({ params, payload }) =>
-      notificationsServiceInstance().register_fcm_token(params?.userId!, payload?.token!),
+      notificationsServiceInstance().register_fcm_token(params?.userId!, payload!),
+    options: args.mutationOptions,
+  });
+};
+const removeFcmTokenMutation = (args: QUERIES.MutationPayload<any, any, { token: string }>) => {
+  return QUERIES.useCustomMutation<any, any, { token: string }>({
+    mutationKey: [Constants.NOTIFICATIONS_KEYS.REMOVE_TOKEN],
+    mutationFn: ({ params }) => notificationsServiceInstance().remove_fcm_token(params?.token!),
     options: args.mutationOptions,
   });
 };
@@ -76,4 +83,5 @@ export {
   readAllNotificationsMutation,
   readNotificationMutation,
   registerFcmTokenMutation,
+  removeFcmTokenMutation,
 };

@@ -5,7 +5,6 @@ import { NotificationsModule } from '_store/state-management';
 import { Colors, hexToRGB } from '_theme/colors';
 import { VariablesColors } from '_theme/variables';
 import { MODELS } from '_types/*';
-import { useRouter } from 'next/navigation';
 import { formatCreatedAt } from 'rise-core-frontend';
 import { notificationUIConfig } from '../constant/notification-config';
 import { useColorMode } from '_components/ui/color-mode';
