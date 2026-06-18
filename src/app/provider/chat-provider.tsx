@@ -5,7 +5,6 @@ import { createContext, useCallback, useContext, useEffect, useReducer, useRef }
 import { authClient } from '../lib/auth-client';
 import { createSocket, destroySocket, getSocket } from '../lib/socket';
 import { Conversation, Message } from '../../types/models';
-import { registerWebPush } from '../lib/push';
 import { chatReducer, ChatState, initialState } from '_store/chat-reducer';
 
 interface ChatContextValue {
@@ -124,7 +123,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
       // 6. Push Web (demande permission si pas encore accordée)
       try {
-        await registerWebPush();
+        //await registerWebPush();
       } catch (e) {
         console.warn('[Push] registration failed', e);
       }

@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Flex, Text, Box } from '@chakra-ui/react';
 import { BaseButton, BaseIcon, Icons } from '_components/custom';
 import { MotionFlex } from '_constants/motion';
+import { getAppNotifPreference } from '../../../helpers/push-notif';
 
 export const RequestUserPushNotifPermission = ({
   enablePermission,
@@ -13,6 +15,13 @@ export const RequestUserPushNotifPermission = ({
   dismiss?: () => void;
   isLoading: boolean;
 }) => {
+  const isReactivation = getAppNotifPreference() === 'disabled';
+
+  useEffect(() => {
+    const timer = setTimeout(() => dismiss?.(), 60_000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <MotionFlex
       initial={{ y: -8, opacity: 0 }}
@@ -35,7 +44,6 @@ export const RequestUserPushNotifPermission = ({
         boxShadow="xl"
         p={4}
       >
-        {/* Header */}
         <Flex align="center" gap={3}>
           <BaseIcon>
             <Icons.Bell size={18} />
@@ -43,15 +51,16 @@ export const RequestUserPushNotifPermission = ({
 
           <Box flex={1} minW={0}>
             <Text fontSize="sm" fontWeight="600" color="fg">
-              Restez informé en temps réel
+              {isReactivation ? 'Notifications désactivées' : 'Restez informé en temps réel'}
             </Text>
             <Text fontSize="xs" color="fg.muted">
-              Activez les notifications push
+              {isReactivation
+                ? 'Réactivez-les pour ne rien manquer'
+                : 'Activez les notifications push'}
             </Text>
           </Box>
         </Flex>
 
-        {/* Actions */}
         <Flex mt={4} justify="flex-end" gap={2}>
           <BaseButton
             variant="plain"
@@ -66,7 +75,7 @@ export const RequestUserPushNotifPermission = ({
           </BaseButton>
 
           <BaseButton size="sm" onClick={enablePermission} fontSize="xs" isLoading={isLoading}>
-            Activer
+            {isReactivation ? 'Réactiver' : 'Activer'}
           </BaseButton>
         </Flex>
       </Box>

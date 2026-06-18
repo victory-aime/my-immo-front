@@ -12,7 +12,7 @@ import { useBreakpointValue } from '@chakra-ui/react';
 import { tourSteps } from '_constants/tourStep';
 import { StorageKey } from '_constants/StorageKeys';
 import { EmailNotVerifiedBanner } from './banner/EmailNotVerified';
-import { BaseModal, BaseText, Icons } from '_components/custom';
+import { BaseModal, BaseText, BaseToast, Icons, ToastStatus } from '_components/custom';
 import { EmailVerifiedSuccessBanner } from './banner/EmailVerifiedSuccessBanner';
 import { AuthModule } from '_store/state-management';
 import { useUserContext } from '_context/user-context';
@@ -22,7 +22,11 @@ import { usePushNotificationsContext } from '../../provider/push-notifications';
 import { RequestUserPushNotifPermission } from './banner/request-notif-perm';
 import { useRouter } from 'next/navigation';
 import { DASHBOARD_ROUTES } from '../routes';
-import { shouldShowPushBanner } from '../../helpers/push-notif';
+import {
+  getAppNotifPreference,
+  isPushEnabled,
+  shouldShowPushBanner,
+} from '../../helpers/push-notif';
 
 export const Layout: FunctionComponent<{
   children: React.ReactNode;
@@ -98,15 +102,28 @@ export const Layout: FunctionComponent<{
   useEffect(() => {
     if (!user?.id) return;
 
-    if (Notification.permission === 'granted') {
+    if (Notification.permission === 'denied') {
       setShowEnabledPushNotification(false);
-      localStorage.removeItem(StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE);
+      BaseToast({
+        title: 'Notifications bloquées',
+        description:
+          'Autorisez les notifications dans les paramètres de votre navigateur pour les réactiver.',
+        type: ToastStatus.WARNING,
+      });
       return;
     }
 
-    if (Notification.permission === 'denied') {
+    if (isPushEnabled()) {
       setShowEnabledPushNotification(false);
+      return;
     }
+
+    if (getAppNotifPreference() === 'disabled') {
+      localStorage.removeItem(StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE);
+      setShowEnabledPushNotification(true);
+      return;
+    }
+
     setShowEnabledPushNotification(shouldShowPushBanner());
   }, [user?.id]);
 

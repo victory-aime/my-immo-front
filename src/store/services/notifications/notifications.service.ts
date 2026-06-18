@@ -1,5 +1,4 @@
 import { BaseApi } from 'rise-core-frontend';
-import { MODELS } from '_types/index';
 
 /**
  * NotificationsService provides methods for handling Notifications-related operations
@@ -47,6 +46,7 @@ export class NotificationsService extends BaseApi {
   remove_fcm_token(token: string) {
     return this.apiService.invoke(
       this.applicationContext.getApiConfig().NOTIFICATION.REMOVE_TOKEN,
+      {},
       { params: { token } },
     );
   }

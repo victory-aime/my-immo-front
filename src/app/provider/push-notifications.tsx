@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useCallback, useContext } from 'react';
-import { clearPushStorage, usePushNotifications } from '_hooks/usePushNotifications';
+import { clearPushStorage, setAppNotifPreference } from '../helpers/push-notif';
+import { usePushNotifications } from '_hooks/usePushNotifications';
 import { useUserContext } from '_context/user-context';
 import { NotificationsModule } from '_store/state-management';
 import { StorageKey } from '_constants/StorageKeys';
@@ -18,9 +19,22 @@ export function PushNotificationsProvider({ children }: { children: React.ReactN
   const { user } = useUserContext();
 
   const { mutateAsync: registerPushToken, isPending: enabledPending } =
-    NotificationsModule.registerFcmTokenMutation({});
+    NotificationsModule.registerFcmTokenMutation({
+      mutationOptions: {
+        onSuccess: async () => {
+          localStorage.removeItem(StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE);
+        },
+      },
+    });
   const { mutateAsync: removeFcmToken, isPending: disablePending } =
-    NotificationsModule.removeFcmTokenMutation({});
+    NotificationsModule.removeFcmTokenMutation({
+      mutationOptions: {
+        onSuccess: async () => {
+          setAppNotifPreference('disabled');
+          clearPushStorage();
+        },
+      },
+    });
 
   const handleTokenReady = useCallback(
     async (fcmToken: string, deviceKey: string) => {
@@ -44,7 +58,6 @@ export function PushNotificationsProvider({ children }: { children: React.ReactN
     if (storedToken) {
       await removeFcmToken({ params: { token: storedToken } });
     }
-    clearPushStorage();
   }, [removeFcmToken]);
 
   return (

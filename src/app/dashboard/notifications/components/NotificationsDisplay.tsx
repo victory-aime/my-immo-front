@@ -2,12 +2,12 @@ import { Box, Flex, VStack, Span, Text, HStack } from '@chakra-ui/react';
 import { BaseIcon, Icons, BaseText, CustomSkeletonLoader } from '_components/custom';
 import { Tag } from '_components/ui/tag';
 import { NotificationsModule } from '_store/state-management';
-import { Colors, hexToRGB } from '_theme/colors';
 import { VariablesColors } from '_theme/variables';
 import { MODELS } from '_types/*';
 import { formatCreatedAt } from 'rise-core-frontend';
 import { notificationUIConfig } from '../constant/notification-config';
 import { useColorMode } from '_components/ui/color-mode';
+import { useThemeColors } from '_theme/useThemeColors';
 
 export const NotificationsDisplay = ({
   request,
@@ -24,6 +24,7 @@ export const NotificationsDisplay = ({
 }) => {
   const { colorMode } = useColorMode();
   const config = notificationUIConfig[request?.notification?.type];
+  const { hexToRGB } = useThemeColors(config?.color);
   const IconComponent = Icons[config?.icon];
 
   const { mutateAsync: readNotification } = NotificationsModule.readNotificationMutation({
@@ -77,7 +78,7 @@ export const NotificationsDisplay = ({
             }
           }}
         >
-          <BaseIcon color={hexToRGB(config?.color as keyof Colors, 0.4)}>
+          <BaseIcon color={hexToRGB(600, 50)}>
             <IconComponent color={VariablesColors[config?.color as keyof typeof VariablesColors]} />
           </BaseIcon>
 
