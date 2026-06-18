@@ -133,7 +133,6 @@ export const Settings = () => {
 
   const handleClearSession = async () => {
     try {
-      console.log('selectedData', selectedData);
       const { data, error } = await authClient.revokeSession({
         token: selectedData!,
       });

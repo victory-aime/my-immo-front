@@ -171,7 +171,6 @@ export const VisitsList = () => {
           });
         }}
         onSelectEvent={(event) => {
-          console.log(event.meta);
           setSelectedValues(event.meta as MODELS.IVisitResponse);
           setOpenModal(true);
         }}

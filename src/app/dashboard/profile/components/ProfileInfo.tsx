@@ -19,6 +19,7 @@ import { ColorMode, useColorMode } from '_components/ui/color-mode';
 import { AppearanceThemeSelector } from './AppearanceThemeSelector';
 import { useAppTheme } from '_context/theme-context';
 import { usePushNotificationsContext } from '../../../provider/push-notifications';
+import { getAppNotifPreference } from '../../../helpers/push-notif';
 
 export const ProfileInfo = () => {
   const { t } = useTranslation();
@@ -26,11 +27,10 @@ export const ProfileInfo = () => {
   const { colorMode, setColorMode } = useColorMode();
   const { primaryColor } = useAppTheme();
   const { enableNotifications, disableNotifications, isPending } = usePushNotificationsContext();
-  const [enabled, setEnabled] = useState(Notification.permission === 'granted');
+  const [enabled, setEnabled] = useState(
+    Notification.permission === 'granted' && getAppNotifPreference() === 'granted',
+  );
   const [themeColor, setThemeColor] = useState<string | null>(primaryColor);
-  const [emailHasChanged, setEmailHasChanged] = useState<boolean>(false);
-  const [pendingValues, setPendingValues] = useState<MODELS.IUser | null>(null);
-
   const [initialValues, setInitialValues] = useState<MODELS.IUser>({} as MODELS.IUser);
 
   const {
@@ -68,32 +68,6 @@ export const ProfileInfo = () => {
     });
   };
 
-  const handleSubmitWithCheck = (values: MODELS.IUser) => {
-    // const emailChanged = values?.email !== currentUser?.email;
-
-    // if (emailChanged) {
-    //   setPendingValues(values);
-    //   setEmailHasChanged(true);
-    //   return;
-    // }
-    handleUpdateUser(values);
-  };
-
-  // const handleConfirmEmailChange = async () => {
-  //   if (!pendingValues) return;
-  //   try {
-  //     // 🔥 appel Better Auth
-  //     await authClient.changeEmail({
-  //       newEmail: pendingValues.email!,
-  //     });
-  //     await handleUpdateUser(pendingValues);
-  //     setEmailHasChanged(false);
-  //     setPendingValues(null);
-  //   } catch (error) {
-  //     console.error('Erreur changeEmail', error);
-  //   }
-  // };
-
   const handleToggle = async (on: boolean) => {
     if (on) await enableNotifications();
     else {
@@ -121,7 +95,7 @@ export const ProfileInfo = () => {
 
   return (
     <main>
-      <Formik enableReinitialize initialValues={initialValues} onSubmit={handleSubmitWithCheck}>
+      <Formik enableReinitialize initialValues={initialValues} onSubmit={handleUpdateUser}>
         {({ handleSubmit }) => {
           return (
             <main>

@@ -6,6 +6,7 @@ export enum StorageKey {
   COMPLETED_GUIDED_TOUR = 'keurezy_tour_completed',
   ENABLED_GUIDED_TOUR = 'keurezy_show_tour',
   DASHBOARD_OWNER_EMAIL_VERIFIED = 'dashboard_email_verified',
+  PUSH_NOTIFICATION_APP_PREFERENCE = 'push_notification_app_preference',
   ONBOARD_PENDING_FORM = 'onboarding_pending_form',
 }
 
