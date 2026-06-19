@@ -1,47 +1,44 @@
 'use client';
-import { Box, Flex, Text } from '@chakra-ui/react';
-import { ConversationList } from './ConversationList';
-import { MessageThread } from './MessageThread';
-import { useChat } from '../../provider/chat-provider';
 
-// Le ChatProvider est placé dans le layout du dashboard
-// src/app/(dashboard)/layout.tsx → <ChatProvider>{children}</ChatProvider>
+import { Flex, Box, useBreakpointValue } from '@chakra-ui/react';
+import { useState } from 'react';
+import { ConversationList } from './ConversationList';
+import { ChatWindow } from './ChatWindow';
+import { EmptyState } from './EmptyState';
 
 export default function ChatPage() {
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
+  if (isMobile) {
+    return activeConversationId ? (
+      <ChatWindow
+        conversationId={activeConversationId}
+        onBack={() => setActiveConversationId(null)}
+      />
+    ) : (
+      <ConversationList
+        activeConversationId={activeConversationId}
+        onSelect={setActiveConversationId}
+      />
+    );
+  }
+
   return (
-    <Flex h="calc(100vh - 64px)">
-      {' '}
-      {/* 64px = hauteur de ta navbar */}
-      {/* Panneau gauche — liste des conversations */}
-      <Box w={{ base: 'full', md: '320px' }} flexShrink={0}>
-        <ConversationList />
+    <Flex h="100vh" overflow="hidden" width={'full'}>
+      <Box w="1/4" flexShrink={0} borderRight="1px solid" borderColor="inherit">
+        <ConversationList
+          activeConversationId={activeConversationId}
+          onSelect={setActiveConversationId}
+        />
       </Box>
-      {/* Panneau droit — thread actif */}
-      <Box flex={1} display={{ base: 'none', md: 'flex' }} flexDirection="column">
-        <ActiveThread />
+      <Box flex={1} minW={0}>
+        {activeConversationId ? (
+          <ChatWindow conversationId={activeConversationId} />
+        ) : (
+          <EmptyState />
+        )}
       </Box>
     </Flex>
   );
-}
-
-function ActiveThread() {
-  const { state } = useChat();
-
-  if (!state.isConnected) {
-    return (
-      <Flex flex={1} align="center" justify="center" color="fg.subtle">
-        <Text fontSize="sm">Connexion en cours…</Text>
-      </Flex>
-    );
-  }
-
-  if (!state.activeConversationId) {
-    return (
-      <Flex flex={1} align="center" justify="center" color="fg.subtle">
-        <Text fontSize="sm">Sélectionnez une conversation</Text>
-      </Flex>
-    );
-  }
-
-  return <MessageThread />;
 }

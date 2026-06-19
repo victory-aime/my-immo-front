@@ -53,12 +53,6 @@ export const ALL_CSA_ROUTES: SidebarNavGroupProps[] = [
     title: 'Gestion',
     icon: Icons.FolderOpen,
     links: [
-      // {
-      //   label: 'Agenda',
-      //   path: DASHBOARD_ROUTES.AGENGA,
-      //   icon: Icons.Agenda,
-      //   badge: 5,
-      // },
       {
         label: 'Rendez-vous',
         path: DASHBOARD_ROUTES.VISITS,
@@ -86,11 +80,15 @@ export const ALL_CSA_ROUTES: SidebarNavGroupProps[] = [
         badge: 5,
       },
       {
+        label: 'Messages',
+        path: DASHBOARD_ROUTES.CHAT,
+        icon: Icons.Chat,
+      },
+      {
         label: 'Notifications',
         path: DASHBOARD_ROUTES.NOTIFICATION,
         icon: Icons.Bell,
       },
-
       {
         label: 'SIDE_BAR.AGENCY',
         path: DASHBOARD_ROUTES.AGENCY,

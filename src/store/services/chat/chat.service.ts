@@ -7,11 +7,11 @@ import { MODELS } from '_types/index';
  *
  */
 export class ChatService extends BaseApi {
-  createConversation(rentalAgreementId: string) {
+  createConversation(userId: string, recipientId: string) {
     return this.apiService.invoke(
       this.applicationContext.getApiConfig().CHAT.CREATE_CONV,
-      {},
-      { params: { rentalAgreementId } },
+      { recipientId },
+      { params: { userId } },
     );
   }
 

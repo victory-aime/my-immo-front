@@ -236,19 +236,19 @@ export const APIS = (baseUrl?: string) => {
     },
     CHAT: {
       CREATE_CONV: api({
-        path: `${APIS_ROUTES_MODULES_PATH.CHAT}/create-conversation`,
+        path: `${APIS_ROUTES_MODULES_PATH.CHAT}/conversations`,
         method: 'POST',
         pathBase: 'SECURED_API',
         showResponse: false,
       }),
       GET_CONV: api({
-        path: `${APIS_ROUTES_MODULES_PATH.CHAT}/get-conversation`,
+        path: `${APIS_ROUTES_MODULES_PATH.CHAT}/conversations`,
         method: 'GET',
         pathBase: 'SECURED_API',
         showResponse: false,
       }),
       GET_MESSAGE: api({
-        path: `${APIS_ROUTES_MODULES_PATH.CHAT}/get-message`,
+        path: `${APIS_ROUTES_MODULES_PATH.CHAT}/conversations/messages`,
         method: 'GET',
         pathBase: 'SECURED_API',
         showResponse: false,

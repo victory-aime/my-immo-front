@@ -1,148 +1,141 @@
-// src/components/chat/ConversationList.tsx
 'use client';
 
-import { Badge, Box, Flex, Input, Text, VStack } from '@chakra-ui/react';
-import { formatDistanceToNow } from 'date-fns';
+import { Box, Flex, Text, Skeleton, VStack } from '@chakra-ui/react';
+import { ChatModule } from '_store/state-management';
+import { useUserContext } from '_context/user-context';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { useState } from 'react';
-import { useChat } from '../../provider/chat-provider';
-import { Conversation } from '../../../types/models/chat';
+import { Icons, BaseText, BaseButton, BaseIcon } from '_components/custom';
 import { Avatar } from '_components/ui/avatar';
+import { useState } from 'react';
+import { NewConversationModal } from './NewConversationModal';
 
-export function ConversationList() {
-  const { state, joinConversation } = useChat();
-  const [search, setSearch] = useState('');
+interface ConversationListProps {
+  activeConversationId: string | null;
+  onSelect: (id: string) => void;
+}
 
-  const filtered = state.conversations.filter((c) => {
-    const title = getConvTitle(c);
-    return title.toLowerCase().includes(search.toLowerCase());
+export function ConversationList({ activeConversationId, onSelect }: ConversationListProps) {
+  const { user } = useUserContext();
+  const [isModalOpen, setModalOpen] = useState(false);
+  const { data: conversations, isLoading } = ChatModule.getConversationQueries({
+    params: { userId: user?.id! },
   });
 
   return (
-    <Flex direction="column" h="100%" borderRightWidth="1px" borderColor="border.subtle">
-      {/* Header */}
-      <Box px={4} py={3} borderBottomWidth="1px" borderColor="border.subtle">
-        <Text fontWeight="semibold" fontSize="lg" mb={3}>
-          Messages
-        </Text>
-        <Input
-          placeholder="Rechercher…"
-          size="sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          borderRadius="lg"
-        />
-      </Box>
+    <Flex direction="column" h="100%" width={'full'}>
+      <Flex
+        px={5}
+        py={3}
+        borderBottom="1px solid"
+        borderColor="inherit"
+        alignItems={'center'}
+        justifyContent={'space-between'}
+      >
+        <BaseText fontSize="lg" fontWeight={'700'}>
+          Conversations
+        </BaseText>
+        <BaseIcon boxSize={'35px'} onClick={() => setModalOpen(true)} cursor={'pointer'}>
+          <Icons.PlusMinus />
+        </BaseIcon>
+      </Flex>
 
       {/* Liste */}
-      <VStack gap={0} overflowY="auto" flex={1} align="stretch">
-        {filtered.map((conv) => (
-          <ConvItem
-            key={conv.id}
-            conv={conv}
-            isActive={state.activeConversationId === conv.id}
-            unread={state.unreadCounts[conv.id] ?? 0}
-            onlineMap={state.onlineMap}
-            onSelect={() => joinConversation(conv.id)}
-          />
-        ))}
-        {filtered.length === 0 && (
-          <Text color="fg.subtle" textAlign="center" py={8} fontSize="sm">
-            Aucune conversation
-          </Text>
+      <Box flex={1} overflowY="auto">
+        {isLoading && (
+          <VStack p={4} gap={3} align="stretch">
+            {[...Array(25)].map((_, i) => (
+              <Flex key={i} gap={3} align="center">
+                <Skeleton w={10} h={10} rounded="full" />
+                <Box flex={1}>
+                  <Skeleton h={3} w="60%" mb={2} />
+                  <Skeleton h={2.5} w="80%" />
+                </Box>
+              </Flex>
+            ))}
+          </VStack>
         )}
-      </VStack>
-    </Flex>
-  );
-}
 
-// ── Item ──────────────────────────────────────────────────────────
-interface ConvItemProps {
-  conv: Conversation;
-  isActive: boolean;
-  unread: number;
-  onlineMap: Record<string, boolean>;
-  onSelect: () => void;
-}
-
-function ConvItem({ conv, isActive, unread, onlineMap, onSelect }: ConvItemProps) {
-  const title = getConvTitle(conv);
-  const lastMsg = conv.messages[0];
-  const otherParticipant = conv.participants.find(() => true); // affine selon ton auth
-  const isOnline = otherParticipant ? onlineMap[otherParticipant.userId] : false;
-
-  return (
-    <Flex
-      align="center"
-      gap={3}
-      px={4}
-      py={3}
-      cursor="pointer"
-      bg={isActive ? 'bg.subtle' : 'transparent'}
-      _hover={{ bg: 'bg.subtle' }}
-      onClick={onSelect}
-      position="relative"
-      borderBottomWidth="1px"
-      borderColor="border.subtle"
-    >
-      {/* Avatar avec indicateur de présence */}
-      <Box position="relative">
-        <Avatar name={title} size="md" />
-        {isOnline && (
-          <Box
-            position="absolute"
-            bottom="0"
-            right="0"
-            w={3}
-            h={3}
-            bg="green.500"
-            borderRadius="full"
-            borderWidth="2px"
-            borderColor="bg"
-          />
-        )}
-      </Box>
-
-      {/* Contenu */}
-      <Box flex={1} minW={0}>
-        <Flex justify="space-between" align="center">
-          <Text fontWeight={unread > 0 ? 'semibold' : 'medium'} fontSize="sm" truncate>
-            {title}
-          </Text>
-          {conv.lastMessageAt && (
-            <Text fontSize="xs" color="fg.subtle" flexShrink={0} ml={2}>
-              {formatDistanceToNow(new Date(conv.lastMessageAt), {
-                addSuffix: false,
-                locale: fr,
-              })}
-            </Text>
-          )}
-        </Flex>
-
-        <Flex justify="space-between" align="center" mt={0.5}>
-          <Text fontSize="xs" color="fg.subtle" truncate flex={1}>
-            {lastMsg?.content ?? 'Aucun message'}
-          </Text>
-          {unread > 0 && (
-            <Badge
-              colorPalette="purple"
-              variant="solid"
-              borderRadius="full"
-              px={2}
-              ml={2}
-              fontSize="xs"
-              flexShrink={0}
+        {!isLoading && !conversations?.length && (
+          <Flex direction="column" align="center" justify="center" h="60vh" px={8} gap={4}>
+            <Box
+              w="56px"
+              h="56px"
+              rounded="full"
+              bg="bg.subtle"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
-              {unread > 99 ? '99+' : unread}
-            </Badge>
-          )}
-        </Flex>
+              <Icons.Chat size={24} strokeWidth={1.5} color="var(--chakra-colors-fg-subtle)" />
+            </Box>
+            <Box textAlign="center">
+              <Text fontSize="sm" fontWeight="500" mb={1}>
+                Aucune conversation
+              </Text>
+              <Text fontSize="xs" color="fg.muted">
+                Démarrez une discussion avec quelqu'un
+              </Text>
+            </Box>
+            <BaseButton leftIcon={<Icons.Edit size={14} />} onClick={() => setModalOpen(true)}>
+              Nouveau message
+            </BaseButton>
+          </Flex>
+        )}
+
+        {conversations?.map((conv: any) => {
+          const otherUser = conv.participants[0]?.user;
+          const lastMessage = conv.messages[0];
+          const isActive = conv.id === activeConversationId;
+
+          return (
+            <Flex
+              key={conv.id}
+              as="button"
+              onClick={() => onSelect(conv.id)}
+              w="full"
+              px={5}
+              py={3}
+              gap={3}
+              align="center"
+              bg={isActive ? 'bg.subtle' : 'transparent'}
+              _hover={{ bg: 'bg.subtle' }}
+              transition="background 0.15s"
+              textAlign="left"
+            >
+              <Avatar name={otherUser?.name} />
+
+              <Box flex={1} minW={0}>
+                <Flex justify="space-between" align="baseline" gap={2}>
+                  <Text
+                    fontSize="sm"
+                    fontWeight={lastMessage && !isActive ? '600' : '500'}
+                    truncate
+                  >
+                    {otherUser?.name ?? 'Utilisateur'}
+                  </Text>
+                  {lastMessage && (
+                    <Text fontSize="xs" color="fg.subtle" flexShrink={0}>
+                      {formatDistanceToNowStrict(new Date(lastMessage.createdAt), {
+                        locale: fr,
+                        addSuffix: false,
+                      })}
+                    </Text>
+                  )}
+                </Flex>
+                <Text fontSize="xs" color="fg.muted" truncate mt={0.5}>
+                  {lastMessage?.content ?? 'Démarrer la conversation'}
+                </Text>
+              </Box>
+            </Flex>
+          );
+        })}
       </Box>
+      <NewConversationModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onConversationCreated={(id) => onSelect?.(id)}
+      />
     </Flex>
   );
-}
-
-function getConvTitle(conv: Conversation): string {
-  if (conv.title) return conv.title;
-  return conv.participants.map((p) => p.user.name).join(', ') || 'Conversation';
 }

@@ -1,10 +1,8 @@
-// src/lib/socket.ts
 import { io, Socket } from 'socket.io-client';
-
 let instance: Socket | null = null;
 
 /** Crée ou retourne l'instance unique du socket */
-export function createSocket(token: string): Socket {
+export function createSocket(): Socket {
   // Déjà connecté avec le même token → rien à faire
   if (instance?.connected) return instance;
 
@@ -16,9 +14,9 @@ export function createSocket(token: string): Socket {
   }
 
   instance = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`, {
-    auth: { token },
+    withCredentials: true,
     autoConnect: false,
-    transports: ['websocket'], // éviter le polling HTTP
+    transports: ['websocket'],
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,

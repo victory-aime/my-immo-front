@@ -8,7 +8,7 @@ import {
 } from '_components/custom';
 import { useUserContext } from '_context/user-context';
 import { TeamModule } from '_store/state-management';
-import { CONSTANTS, MODELS } from '_types/*';
+import { CONSTANTS, MODELS, ENUM } from '_types/*';
 import { formatDisplayDate } from 'rise-core-frontend';
 import { TeamDetails } from './TeamDetails';
 import { useState } from 'react';
@@ -68,7 +68,7 @@ export const TeamList = () => {
       accessor: 'fullObject',
       cell: (values) => (
         <BaseSwitch
-          isChecked={values.status}
+          isChecked={values.status === ENUM.COMMON.Status.ACTIVE}
           isLoading={isChangeStatusPending}
           onSwitchChange={async (item) => {
             await handleStatus(item, values.id, values.userId);

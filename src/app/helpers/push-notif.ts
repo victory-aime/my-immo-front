@@ -40,16 +40,14 @@ async function resolveFcmToken(messaging: Messaging): Promise<string | null> {
     return null;
   }
   return new Promise((resolve, reject) => {
-    register(messaging, { vapidKey })
-      .then(() => {
-        onRegistered(messaging, (token) => {
-          resolve(token ?? null);
-        });
-      })
-      .catch((error) => {
-        console.error('[Push] Erreur register FCM:', error);
-        reject(error);
-      });
+    onRegistered(messaging, (token) => {
+      resolve(token ?? null);
+    });
+
+    register(messaging, { vapidKey }).catch((error) => {
+      console.error('[Push] Erreur register FCM:', error);
+      reject(error);
+    });
   });
 }
 

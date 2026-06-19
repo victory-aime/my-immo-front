@@ -22,7 +22,7 @@ interface IConversationResponse {
 }
 
 // src/types/chat.ts
-export type MessageStatus = 'SENT' | 'DELIVERED' | 'READ';
+export type MessageStatus1 = 'SENT' | 'DELIVERED' | 'READ';
 export type MessageType = 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM';
 
 export interface ChatUser {
@@ -62,4 +62,41 @@ export interface Conversation {
   messages: Pick<Message, 'id' | 'content' | 'type' | 'createdAt' | 'senderId'>[];
 }
 
-export type { ISendMessage, IMessageResponse, IConversationResponse };
+export type MessageStatus = 'sending' | 'sent' | 'failed';
+
+// types/chat.ts
+
+interface MessagePayload {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  type: string;
+  reactions: Record<string, string[]> | null;
+  createdAt: string;
+  status?: MessageStatus;
+}
+
+interface TypingPayload {
+  conversationId: string;
+  userId: string;
+  isTyping: boolean;
+}
+
+interface Conversation1 {
+  id: string;
+  participants: {
+    user: { id: string; name: string; image: string | null };
+  }[];
+  messages: MessagePayload[];
+  updatedAt: string;
+}
+
+export type {
+  ISendMessage,
+  IMessageResponse,
+  IConversationResponse,
+  MessagePayload,
+  Conversation1,
+  TypingPayload,
+};

@@ -39,6 +39,7 @@ export const Layout: FunctionComponent<{
   const { user: currentUser, isLoading: currentUserLoad } = useUserContext();
   const [showTour, setShowTour] = useState(false);
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
+  const [showPermissionLoad, setPermissionLoad] = useState(false);
   const [showEnabledPushNotification, setShowEnabledPushNotification] = useState(() => {
     return shouldShowPushBanner();
   });
@@ -171,12 +172,13 @@ export const Layout: FunctionComponent<{
 
             {showEnabledPushNotification && (
               <RequestUserPushNotifPermission
-                enablePermission={() =>
+                enablePermission={() => {
+                  setPermissionLoad(true);
                   enableNotifications().then(() => {
                     setShowEnabledPushNotification(false);
                     localStorage.removeItem(StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE);
-                  })
-                }
+                  });
+                }}
                 dismiss={() => {
                   localStorage.setItem(
                     StorageKey.PUSH_NOTIFICATION_BANNER_DISMISS_DATE,
@@ -184,7 +186,7 @@ export const Layout: FunctionComponent<{
                   );
                   setShowEnabledPushNotification(false);
                 }}
-                isLoading={isPending}
+                isLoading={showPermissionLoad}
               />
             )}
 

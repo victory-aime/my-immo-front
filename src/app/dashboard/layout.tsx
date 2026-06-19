@@ -7,6 +7,7 @@ import { safeGetServerSession } from '_hooks/get-server-session';
 import { DynamicThemeProvider } from '_context/theme-context';
 import React from 'react';
 import { PushNotificationsProvider } from '../provider/push-notifications';
+import { ChatProvider } from '../provider/chat-provider';
 
 export default async function DashboardLayout({
   children,
@@ -25,7 +26,9 @@ export default async function DashboardLayout({
         <UserProvider userId={session?.data?.user?.id}>
           <DynamicThemeProvider>
             <PushNotificationsProvider>
-              <Layout>{children}</Layout>
+              <Layout>
+                <ChatProvider>{children}</ChatProvider>
+              </Layout>
             </PushNotificationsProvider>
           </DynamicThemeProvider>
         </UserProvider>
