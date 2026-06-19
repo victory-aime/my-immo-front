@@ -45,6 +45,18 @@ export const ChatCache = {
     const current = ChatCache.getMessages(message.conversationId);
     if (!current) return;
 
+    if (!current) {
+      ChatCache.setMessages(message.conversationId, {
+        items: [message],
+        nextCursor: null,
+      });
+      return;
+    }
+
+    // Évite les doublons (ex: optimistic message remplacé par la version serveur)
+    const alreadyExists = current.items.some((m) => m.id === message.id);
+    if (alreadyExists) return;
+
     ChatCache.setMessages(message.conversationId, {
       ...current,
       items: [message, ...current.items],
