@@ -1,4 +1,3 @@
-// hooks/chat/useTypingIndicator.ts
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSocket } from '../../lib/socket';
 import { MODELS } from '_types/';

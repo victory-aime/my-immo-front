@@ -129,8 +129,19 @@ export const Layout: FunctionComponent<{
   }, [user?.id]);
 
   navigator.serviceWorker.addEventListener('message', (event) => {
+    console.log('Received message', event);
     if (event.data?.type === 'NOTIFICATION_CLICK') {
-      router.push(`${DASHBOARD_ROUTES.NOTIFICATION}`);
+      switch (event.data.notificationType as ENUM.NotificationType) {
+        case 'LEAD':
+          router.push(`${DASHBOARD_ROUTES.CHAT}?=${event.data.conversationId}`);
+          break;
+        case 'SYSTEM':
+          router.push(DASHBOARD_ROUTES.NOTIFICATION);
+          break;
+        case 'VISIT':
+          router.push(DASHBOARD_ROUTES.VISITS);
+          break;
+      }
     }
   });
 

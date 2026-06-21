@@ -1,10 +1,16 @@
-import { MainChat } from './components/MainChat';
+'use client';
 
-export default function ChatPage() {
-  //const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  //const isMobile = useBreakpointValue({ base: true, md: false });
+import { Box, Flex, useBreakpointValue } from '@chakra-ui/react';
+import { useState } from 'react';
+import { ChatWindow } from './ChatWindow';
+import { ConversationList } from './ConversationList';
+import { EmptyState } from './EmptyState';
 
-  /*return isMobile ? (
+export const MainChat = () => {
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
+  return isMobile ? (
     activeConversationId ? (
       <ChatWindow
         conversationId={activeConversationId}
@@ -35,7 +41,5 @@ export default function ChatPage() {
         )}
       </Box>
     </Flex>
-  );*/
-
-  return <MainChat />;
-}
+  );
+};

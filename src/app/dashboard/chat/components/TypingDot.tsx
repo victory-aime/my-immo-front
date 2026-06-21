@@ -13,10 +13,12 @@ export function TypingDots() {
     <Flex
       align="center"
       gap="3px"
+      mb="10px"
+      mt="10px"
       bg="bg.subtle"
       w="fit-content"
-      px={3.5}
-      py={2.5}
+      px={4}
+      py={3}
       borderRadius="18px"
       borderBottomLeftRadius="4px"
     >

@@ -85,14 +85,14 @@ export const Header = ({ onShowSidebar, sideToggled }: SideBarProps) => {
                   direction={'row'}
                   width={'20px'}
                   colorButton="neutral"
-                  raduis={'full'}
+                  radius={'full'}
                 />
                 <CustomSkeletonLoader
                   type="BUTTON"
                   direction={'row'}
                   width={'20px'}
                   colorButton="neutral"
-                  raduis={'full'}
+                  radius={'full'}
                 />
                 <Separator orientation="vertical" height={6} mx={1} />
                 <CustomSkeletonLoader

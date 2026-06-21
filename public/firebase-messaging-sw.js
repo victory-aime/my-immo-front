@@ -26,7 +26,26 @@ messaging.onBackgroundMessage((payload) => {
 });
 
 self.addEventListener('notificationclick', (event) => {
-  const url = new URL(`/dashboard/notifications/`, self.location.origin).href;
+  const { type, notificationId } = event.notification.data || {};
+  let url = '/dashboard';
+
+  switch (type) {
+    case 'LEAD':
+      url = `/dashboard/chat?=${notificationId}`;
+      break;
+
+    case 'SYSTEM':
+      url = '/dashboard/notifications';
+      break;
+
+    case 'VISIT':
+      url = '/dashboard/visits';
+      break;
+
+    default:
+      url = '/dashboard';
+  }
+
   event.waitUntil(
     clients
       .matchAll({
@@ -39,6 +58,8 @@ self.addEventListener('notificationclick', (event) => {
             client.focus();
             client.postMessage({
               type: 'NOTIFICATION_CLICK',
+              notificationType: type,
+              conversationId,
             });
             return;
           }

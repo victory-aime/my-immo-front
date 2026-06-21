@@ -2,126 +2,179 @@ import { QUERIES } from 'rise-core-frontend';
 import * as Constants from './constants';
 import { MODELS } from '_types/index';
 
-interface MessagesPage {
-  items: MODELS.MessagePayload[];
-  nextCursor: string | null;
-}
+type MessagesCache = QUERIES.InfiniteQueryResult<MODELS.IGetMessageResponse>;
+
+const pendingReadIds = new Map<string, Set<string>>();
+
+/**
+ * Helper: update all messages across pages
+ */
+const mapMessages = (
+  cache: MessagesCache,
+  updater: (message: MODELS.MessagePayload) => MODELS.MessagePayload,
+): MessagesCache => ({
+  ...cache,
+  pages: cache.pages.map((page) => ({
+    ...page,
+    items: page.items.map(updater),
+  })),
+});
 
 export const ChatCache = {
-  /** Invalide la liste des conversations — refetch preview + tri */
   invalidateConversations: () =>
     QUERIES.QueryCache.invalidate([Constants.CHAT_KEYS.GET_ALL_CONVERSATIONS]),
 
-  /** Lit le cache des messages d'une conversation */
-  getMessages: (conversationId: string) =>
-    QUERIES.QueryCache.get<MessagesPage>([Constants.CHAT_KEYS.GET_MESSAGES, conversationId]),
-
-  /** Remplace entièrement le cache des messages d'une conversation */
-  setMessages: (conversationId: string, data: MessagesPage) =>
-    QUERIES.QueryCache.set<MessagesPage>([Constants.CHAT_KEYS.GET_MESSAGES, conversationId], data),
-
-  /**
-   * Préfixe un nouveau message en tête de la conversation.
-   * No-op si le cache n'existe pas encore (conversation jamais ouverte) —
-   * on laisse le fetch initial s'en charger normalement à l'ouverture.
-
-  prependMessage: (message: MODELS.Message) => {
-    const current = ChatCache.getMessages(message.conversationId);
-    if (!current) return;
-
-    ChatCache.setMessages(message.conversationId, {
-      ...current,
-      items: [message, ...current.items],
-    });
+  getMessages: (conversationId: string) => {
+    const key = [Constants.CHAT_KEYS.GET_MESSAGES, conversationId];
+    return QUERIES.QueryCache.get<MessagesCache>(key);
   },
-      */
+
+  setMessages: (conversationId: string, data: MessagesCache) => {
+    const key = [Constants.CHAT_KEYS.GET_MESSAGES, conversationId];
+
+    QUERIES.QueryCache.set<MessagesCache>(key, data);
+    QUERIES.QueryCache.invalidate([Constants.CHAT_KEYS.GET_ALL_CONVERSATIONS]);
+  },
+
   /**
-   * FIX BUG #1 : si le cache n'existe pas encore, on le CRÉE au lieu de no-op.
-   * Cas réel : l'user est déjà sur la conversation (room jointe, listeners actifs)
-   * mais React Query n'a pas encore résolu son premier fetch, ou le query a été
-   * gc collected entre deux messages. On ne doit jamais perdre un message reçu.
+   * Ajout message en haut (page 0 uniquement)
    */
   prependMessage: (message: MODELS.MessagePayload) => {
-    const current = ChatCache.getMessages(message.conversationId);
-    if (!current) return;
+    const key = [Constants.CHAT_KEYS.GET_MESSAGES, message.conversationId];
+    const current = QUERIES.QueryCache.get<MessagesCache>(key);
 
     if (!current) {
-      ChatCache.setMessages(message.conversationId, {
-        items: [message],
-        nextCursor: null,
+      QUERIES.QueryCache.set<MessagesCache>(key, {
+        pages: [
+          {
+            items: [message],
+            nextCursor: null,
+          },
+        ],
+        pageParams: [undefined],
       });
       return;
     }
 
-    // Évite les doublons (ex: optimistic message remplacé par la version serveur)
-    const alreadyExists = current.items.some((m) => m.id === message.id);
+    const alreadyExists = current.pages.some((p) => p.items.some((m) => m.id === message.id));
+
     if (alreadyExists) return;
 
-    ChatCache.setMessages(message.conversationId, {
+    const updated: MessagesCache = {
       ...current,
-      items: [message, ...current.items],
-    });
+      pages: current.pages.map((page, index) =>
+        index === 0
+          ? {
+              ...page,
+              items: [message, ...page.items],
+            }
+          : page,
+      ),
+    };
+
+    QUERIES.QueryCache.set<MessagesCache>(key, updated);
   },
+
   /**
-   * Remplace un message optimiste (id temporaire) par la version confirmée serveur.
-   * Utilisé après réception de 'message:sent'.
+   * READ update multi messages
+   */
+  updateMessagesReadStatus: (conversationId: string, messageIds: string[]) => {
+    const key = [Constants.CHAT_KEYS.GET_MESSAGES, conversationId];
+    const current = QUERIES.QueryCache.get<MessagesCache>(key);
+    if (!current) return;
+
+    const idSet = new Set(messageIds);
+    const found = new Set<string>();
+
+    const updated = mapMessages(current, (m) => {
+      if (idSet.has(m.id)) {
+        found.add(m.id);
+        return { ...m, status: 'READ' as const };
+      }
+      return m;
+    });
+
+    QUERIES.QueryCache.set<MessagesCache>(key, updated);
+
+    const notFound = messageIds.filter((id) => !found.has(id));
+
+    if (notFound.length) {
+      const existing = pendingReadIds.get(conversationId) ?? new Set();
+      notFound.forEach((id) => existing.add(id));
+      pendingReadIds.set(conversationId, existing);
+    }
+  },
+
+  /**
+   * replace optimistic → server message
    */
   replaceOptimisticMessage: (
     conversationId: string,
     tempId: string,
     confirmedMessage: MODELS.MessagePayload,
   ) => {
-    const current = ChatCache.getMessages(conversationId);
-    if (!current) {
-      ChatCache.setMessages(conversationId, { items: [confirmedMessage], nextCursor: null });
-      return;
-    }
+    const key = [Constants.CHAT_KEYS.GET_MESSAGES, conversationId];
+    const current = QUERIES.QueryCache.get<MessagesCache>(key);
+    if (!current) return;
 
-    ChatCache.setMessages(conversationId, {
+    const pending = pendingReadIds.get(conversationId);
+    const wasRead = pending?.has(confirmedMessage.id);
+
+    const finalMessage = wasRead
+      ? { ...confirmedMessage, status: 'READ' as const }
+      : confirmedMessage;
+
+    if (wasRead) pending!.delete(confirmedMessage.id);
+
+    const updated: MessagesCache = {
       ...current,
-      items: current.items.map((m) => (m.id === tempId ? confirmedMessage : m)),
-    });
+      pages: current.pages.map((page) => ({
+        ...page,
+        items: page.items.map((m) => (m.id === tempId ? finalMessage : m)),
+      })),
+    };
+
+    QUERIES.QueryCache.set<MessagesCache>(key, updated);
   },
 
   /**
-   * Marque un message optimiste comme échoué (sender down, timeout).
+   * mark failed message
    */
   markMessageFailed: (conversationId: string, tempId: string) => {
-    const current = ChatCache.getMessages(conversationId);
+    const key = [Constants.CHAT_KEYS.GET_MESSAGES, conversationId];
+    const current = QUERIES.QueryCache.get<MessagesCache>(key);
     if (!current) return;
 
-    ChatCache.setMessages(conversationId, {
+    const updated: MessagesCache = {
       ...current,
-      items: current.items.map((m) => (m.id === tempId ? { ...m, status: 'failed' as const } : m)),
-    });
+      pages: current.pages.map((page) => ({
+        ...page,
+        items: page.items.map((m) => (m.id === tempId ? { ...m, status: 'failed' as const } : m)),
+      })),
+    };
+
+    QUERIES.QueryCache.set<MessagesCache>(key, updated);
   },
 
+  /**
+   * remove message
+   */
   removeMessage: (conversationId: string, messageId: string) => {
-    const current = ChatCache.getMessages(conversationId);
+    const key = [Constants.CHAT_KEYS.GET_MESSAGES, conversationId];
+    const current = QUERIES.QueryCache.get<MessagesCache>(key);
     if (!current) return;
 
-    ChatCache.setMessages(conversationId, {
+    const updated: MessagesCache = {
       ...current,
-      items: current.items.filter((m) => m.id !== messageId),
-    });
+      pages: current.pages.map((page) => ({
+        ...page,
+        items: page.items.filter((m) => m.id !== messageId),
+      })),
+    };
+
+    QUERIES.QueryCache.set<MessagesCache>(key, updated);
   },
 
-  /** Met à jour les réactions d'un message précis dans le cache */
-  updateMessageReactions: (
-    conversationId: string,
-    messageId: string,
-    reactions: Record<string, string[]>,
-  ) => {
-    const current = ChatCache.getMessages(conversationId);
-    if (!current) return;
-
-    ChatCache.setMessages(conversationId, {
-      ...current,
-      items: current.items.map((m) => (m.id === messageId ? { ...m, reactions } : m)),
-    });
-  },
-
-  /** Présence d'un user (online/offline) */
   setPresence: (userId: string, online: boolean) =>
     QUERIES.QueryCache.set(['presence', userId], online),
 

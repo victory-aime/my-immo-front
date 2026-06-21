@@ -3,11 +3,7 @@
 import { Flex, Textarea, IconButton } from '@chakra-ui/react';
 import { useState, useRef, KeyboardEvent } from 'react';
 import { Icons } from '_components/custom';
-
-interface ChatInputProps {
-  onSend: (content: string) => void;
-  onTyping: () => void;
-}
+import { ChatInputProps } from '../interface/chat';
 
 export function ChatInput({ onSend, onTyping }: ChatInputProps) {
   const [value, setValue] = useState('');
@@ -15,7 +11,6 @@ export function ChatInput({ onSend, onTyping }: ChatInputProps) {
 
   const handleSend = () => {
     const trimmed = value.trim();
-    console.log('Sending message', trimmed);
     if (!trimmed) return;
     onSend(trimmed);
     setValue('');
@@ -40,12 +35,12 @@ export function ChatInput({ onSend, onTyping }: ChatInputProps) {
 
   return (
     <Flex
-      align="flex-end"
+      align="center"
       gap={2}
       px={4}
       py={3}
       borderTop="1px solid"
-      borderColor="border.subtle"
+      borderColor="inherit"
       flexShrink={0}
     >
       <Textarea
@@ -59,22 +54,21 @@ export function ChatInput({ onSend, onTyping }: ChatInputProps) {
         minH="40px"
         maxH="120px"
         fontSize="sm"
-        borderRadius="20px"
+        borderRadius="12px"
         px={4}
         py={2.5}
-        bg="bg.subtle"
-        border="none"
-        _focus={{ boxShadow: 'none', bg: 'bg.muted' }}
+        bg="bg.muted"
+        borderColor={'inherit'}
+        overflow="hidden"
+        _focus={{ boxShadow: 'none', bg: 'bg.muted', borderColor: 'purple.focusRing' }}
       />
-
       <IconButton
         aria-label="Envoyer"
         onClick={handleSend}
         disabled={!value.trim()}
         rounded="full"
-        size="md"
-        bg="fg"
-        color="bg"
+        bg="primary.500"
+        color={'white'}
         _hover={{ opacity: 0.85 }}
         _disabled={{ opacity: 0.3, cursor: 'not-allowed' }}
       >

@@ -1,11 +1,11 @@
 'use client';
 
-import { Flex, Text, Box } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import { BaseIcon, Icons } from '_components/custom';
 
 export function EmptyState() {
   return (
-    <Flex direction="column" align="center" justify="center" h="100%" gap={3} px={8}>
+    <Flex direction="column" align="center" justify="center" h="2xl" gap={3} px={8}>
       <BaseIcon rounded={'full'} boxSize={'56px'} color="bg.subtle">
         <Icons.Chat size={24} strokeWidth={1.5} color="var(--chakra-colors-fg-subtle)" />
       </BaseIcon>
