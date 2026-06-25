@@ -1,41 +1,5 @@
 import { MainChat } from './components/MainChat';
 
 export default function ChatPage() {
-  //const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  //const isMobile = useBreakpointValue({ base: true, md: false });
-
-  /*return isMobile ? (
-    activeConversationId ? (
-      <ChatWindow
-        conversationId={activeConversationId}
-        onBack={() => setActiveConversationId(null)}
-      />
-    ) : (
-      <ConversationList
-        activeConversationId={activeConversationId}
-        onSelect={setActiveConversationId}
-      />
-    )
-  ) : (
-    <Flex overflow="hidden" width={'full'} gap={3}>
-      <Box w="1/4" flexShrink={0}>
-        <ConversationList
-          activeConversationId={activeConversationId}
-          onSelect={setActiveConversationId}
-        />
-      </Box>
-      <Box width={'full'}>
-        {activeConversationId ? (
-          <ChatWindow
-            conversationId={activeConversationId}
-            onBack={() => setActiveConversationId(null)}
-          />
-        ) : (
-          <EmptyState />
-        )}
-      </Box>
-    </Flex>
-  );*/
-
   return <MainChat />;
 }

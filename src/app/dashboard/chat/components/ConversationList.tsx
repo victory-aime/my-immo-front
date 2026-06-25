@@ -7,12 +7,12 @@ import { Icons, BaseText, BaseButton, BaseIcon } from '_components/custom';
 import { Avatar } from '_components/ui/avatar';
 import { useState } from 'react';
 import { NewConversationModal } from './NewConversationModal';
-import { getTimeValue } from 'rise-core-frontend';
 import { useThemeColors } from '_theme/useThemeColors';
 import { ConversationLoad } from './ConversationLoad';
 import { ConversationListProps } from '../interface/chat';
 import { MessageStatusIcon } from './MessagesStatusIcon';
 import { MODELS } from '_types/';
+import { formatConversationDate } from 'rise-core-frontend';
 
 export function ConversationList({ activeConversationId, onSelect }: ConversationListProps) {
   const { user } = useUserContext();
@@ -74,9 +74,6 @@ export function ConversationList({ activeConversationId, onSelect }: Conversatio
         )}
 
         {conversations?.map((conv: MODELS.Conversation) => {
-          // FIX #1 : sépare explicitement "moi" et "l'interlocuteur"
-          // au lieu de prendre blindly [0] qui peut être n'importe qui
-
           const me = conv.participants.find((p) => p.user.id === user?.id);
           const other = conv.participants.find((p) => p.user.id !== user?.id);
           const lastMessage = conv.messages[0];
@@ -84,13 +81,6 @@ export function ConversationList({ activeConversationId, onSelect }: Conversatio
           const unreadCount = me?.unreadCount ?? 0;
           const showUnread = unreadCount > 0 && !isActive;
           const isLastMessageMine = lastMessage?.senderId === user?.id;
-
-          // FIX #3 : unreadCount = mes messages non lus (ceux que j'ai reçus)
-          // Visible uniquement si > 0 ET la conversation n'est pas active
-
-          console.log('unreadCount', unreadCount);
-          console.log('showUnread', showUnread);
-          console.log('lastmessages', lastMessage);
 
           return (
             <Flex
@@ -115,8 +105,13 @@ export function ConversationList({ activeConversationId, onSelect }: Conversatio
                     {other?.user?.name ?? 'Utilisateur'}
                   </Text>
                   {lastMessage && (
-                    <Text fontSize="xs" color="fg.subtle" flexShrink={0}>
-                      {getTimeValue(lastMessage.createdAt)}
+                    <Text
+                      fontSize="xs"
+                      color="fg.subtle"
+                      flexShrink={0}
+                      textTransform={'capitalize'}
+                    >
+                      {formatConversationDate(lastMessage.createdAt)}
                     </Text>
                   )}
                 </Flex>
@@ -132,14 +127,11 @@ export function ConversationList({ activeConversationId, onSelect }: Conversatio
                     {lastMessage?.content ?? 'Démarrer la conversation'}
                   </Text>
 
-                  {/* FIX #3 : deux indicateurs distincts et mutuellement exclusifs
-                      - C'est mon message → icône statut (SENT/DELIVERED/READ)
-                      - C'est son message + non lu → pastille rouge avec compteur */}
                   {isLastMessageMine && lastMessage?.status ? (
                     <MessageStatusIcon status={lastMessage.status} />
                   ) : showUnread ? (
                     <Box
-                      bg="red.500"
+                      bg="primary.500"
                       color="white"
                       fontSize="2xs"
                       fontWeight="700"

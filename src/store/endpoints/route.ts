@@ -476,6 +476,7 @@ export const APIS = (baseUrl?: string) => {
         path: `${APIS_ROUTES_MODULES_PATH.STATS}/agency`,
         pathBase: 'SECURED_API',
         method: 'GET',
+        showResponse: false,
       }),
     },
   };

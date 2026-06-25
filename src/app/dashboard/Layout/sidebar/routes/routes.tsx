@@ -33,6 +33,11 @@ export const ALL_CSA_ROUTES: SidebarNavGroupProps[] = [
         feature: 'manage_properties',
         permission: 'view_properties',
       },
+      {
+        label: 'Demandes',
+        path: DASHBOARD_ROUTES.LEADS,
+        icon: Icons.Clipboard,
+      },
     ],
     title: 'Gestion Immobiliers',
     icon: Icons.GridHome,
@@ -60,13 +65,6 @@ export const ALL_CSA_ROUTES: SidebarNavGroupProps[] = [
         badge: 5,
       },
       {
-        label: 'Demandes',
-        path: DASHBOARD_ROUTES.LEADS,
-        icon: Icons.Clipboard,
-        badge: 5,
-      },
-
-      {
         label: 'Invitations',
         path: DASHBOARD_ROUTES.INVITATIONS.LIST,
         icon: Icons.SendMail,
@@ -79,11 +77,11 @@ export const ALL_CSA_ROUTES: SidebarNavGroupProps[] = [
         icon: Icons.FaUsers,
         badge: 5,
       },
-      {
+      /*      {
         label: 'Messages',
         path: DASHBOARD_ROUTES.CHAT,
         icon: Icons.Chat,
-      },
+      },*/
       {
         label: 'Notifications',
         path: DASHBOARD_ROUTES.NOTIFICATION,

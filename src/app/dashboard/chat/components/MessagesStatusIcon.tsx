@@ -13,7 +13,6 @@ export function MessageStatusIcon({ status }: MessageStatusIconProps) {
   if (!status || status === 'failed') return null;
 
   if (status === 'sending') {
-    // Petit point en attente — pas encore confirmé par le serveur
     return (
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
         <circle cx="6" cy="6" r="3" fill="var(--chakra-colors-fg-subtle)" opacity="0.5" />
@@ -22,15 +21,15 @@ export function MessageStatusIcon({ status }: MessageStatusIconProps) {
   }
 
   if (status === 'SENT') {
-    return <Icons.Check size={13} strokeWidth={2.5} color={VariablesColors.grayScale} />;
+    return <Icons.Check size={14} color={VariablesColors.grayScale} />;
   }
 
   if (status === 'DELIVERED') {
-    return <Icons.DoubleCheck size={18} strokeWidth={2.5} color={VariablesColors.grayScale} />;
+    return <Icons.DoubleCheck size={14} color={VariablesColors.grayScale} />;
   }
 
   if (status === 'READ') {
-    return <Icons.DoubleCheck size={18} strokeWidth={2.5} color={VariablesColors.blue} />;
+    return <Icons.DoubleCheck size={14} color={VariablesColors.blue} />;
   }
 
   return null;

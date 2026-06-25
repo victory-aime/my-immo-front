@@ -26,9 +26,7 @@ export default async function DashboardLayout({
         <UserProvider userId={session?.data?.user?.id}>
           <DynamicThemeProvider>
             <PushNotificationsProvider>
-              <Layout>
-                <ChatProvider>{children}</ChatProvider>
-              </Layout>
+              <Layout>{children}</Layout>
             </PushNotificationsProvider>
           </DynamicThemeProvider>
         </UserProvider>

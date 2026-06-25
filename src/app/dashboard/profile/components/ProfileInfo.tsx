@@ -38,7 +38,7 @@ export const ProfileInfo = () => {
     isFetching: userDataLoading,
     refetch: reloadUserInfo,
   } = UserModule.getUserInfo({
-    params: { userId: session?.userId },
+    params: { userId: session?.userId! },
     queryOptions: { enabled: !!session?.userId },
   });
 

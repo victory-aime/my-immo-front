@@ -46,7 +46,8 @@ export const NotificationsDisplay = ({
       width={'full'}
       border={'1px solid'}
       p={4}
-      borderRadius={index === 0 ? '12px 12px 0 0' : isLast ? '0 0 12px 12px' : '0'}
+      mb={2}
+      borderRadius={'12px'}
       borderColor={request.isRead ? 'inherit' : `${config?.color}.400`}
       bg={
         request.isRead
@@ -56,7 +57,7 @@ export const NotificationsDisplay = ({
             : `${config?.color}.800`
       }
       transition="all 0.2s ease"
-      _hover={{ transform: 'translateY(-2px)', shadow: 'md' }}
+      _hover={{ transform: 'translateY(-2px)' }}
     >
       {isLoading ? (
         <VStack gap={4}>
@@ -72,9 +73,9 @@ export const NotificationsDisplay = ({
           gap={3}
           alignItems={'flex-start'}
           cursor={'pointer'}
-          onClick={() => {
+          onClick={async () => {
             if (!request.isRead) {
-              onReadNotification(request?.notificationId, request?.userId);
+              await onReadNotification(request?.notificationId, request?.userId);
             }
           }}
         >

@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging } from 'firebase/messaging';
-import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -12,5 +11,4 @@ const firebaseConfig = {
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
-const analytics = getAnalytics(firebaseApp);
 export const firebaseMessaging = typeof window !== 'undefined' ? getMessaging(firebaseApp) : null;

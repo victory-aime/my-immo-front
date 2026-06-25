@@ -35,8 +35,8 @@ export const PropertyList = () => {
     () => ({
       params: {
         ...filterValues,
-        agencyId,
-        userId,
+        agencyId: agencyId!,
+        userId: userId!,
         initialPage: currentPage,
         limitPerPage: CONSTANTS.PAGINATION.TEN_ITEMS_PER_PAGE,
       },
@@ -55,8 +55,8 @@ export const PropertyList = () => {
 
   const { data: allBuildings } = BuildingModule.getAllBuildingByAgencyQueries({
     params: {
-      agencyId,
-      userId,
+      agencyId: agencyId!,
+      userId: userId!,
       limitPerPage: CONSTANTS.PAGINATION.FULL_PAGE_SIZE,
     },
     queryOptions: {

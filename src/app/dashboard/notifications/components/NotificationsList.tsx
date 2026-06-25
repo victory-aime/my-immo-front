@@ -13,7 +13,7 @@ export const NotificationsList = () => {
     isLoading,
     refetch: refetchNotificationList,
   } = NotificationsModule.getAllNotificationsQueries({
-    params: { userId: user?.id },
+    params: { userId: user?.id! },
     queryOptions: { enabled: !!user?.id },
   });
 

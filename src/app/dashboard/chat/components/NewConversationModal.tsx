@@ -30,14 +30,14 @@ export function NewConversationModal({
   const userId = user?.ownerId || user?.staffId;
 
   const { data: users, isLoading: isLoadingUsers } = TeamModule.getAllTeamByAgency({
-    params: { agencyId, userId },
+    params: { agencyId: agencyId!, userId: userId! },
     queryOptions: {
       enabled: mode === 'team' && !!agencyId && !!userId,
     },
   });
 
   const { data: leads, isLoading: isLoadingLeads } = LeadsModule.agencyLeadsListQueries({
-    params: { agencyId, userId },
+    params: { agencyId: agencyId!, userId: userId! },
     queryOptions: { enabled: mode === 'lead' && !!agencyId && !!userId },
   });
 

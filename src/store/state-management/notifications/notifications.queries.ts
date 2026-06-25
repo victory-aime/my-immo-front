@@ -4,11 +4,15 @@ import { MODELS } from '_types/index';
 import { QUERIES } from 'rise-core-frontend';
 
 const getAllNotificationsQueries = (
-  args: QUERIES.QueryPayload<{
-    userId: string;
-  }>,
+  args: QUERIES.QueryPayload<
+    MODELS.INotificationListResponse[],
+    undefined,
+    {
+      userId: string;
+    }
+  >,
 ) => {
-  return QUERIES.useCustomQuery<MODELS.INotificationListResponse[]>({
+  return QUERIES.useCustomQuery<undefined, { userId: string }, MODELS.INotificationListResponse[]>({
     queryKey: [Constants.NOTIFICATIONS_KEYS.GET_ALL_NOTIFICATIONS],
     queryFn: () => notificationsServiceInstance().getAllNotifications(args?.params?.userId!),
     options: args.queryOptions,
@@ -16,11 +20,15 @@ const getAllNotificationsQueries = (
 };
 
 const getAllUnreadNotificationsQueries = (
-  args: QUERIES.QueryPayload<{
-    userId: string;
-  }>,
+  args: QUERIES.QueryPayload<
+    MODELS.INotificationListResponse[],
+    undefined,
+    {
+      userId: string;
+    }
+  >,
 ) => {
-  return QUERIES.useCustomQuery<MODELS.INotificationListResponse[]>({
+  return QUERIES.useCustomQuery<undefined, { userId: string }, MODELS.INotificationListResponse[]>({
     queryKey: [Constants.NOTIFICATIONS_KEYS.GET_ALL_UNREAD_NOTIFICATION],
     queryFn: () => notificationsServiceInstance().getAllUnreadNotifications(args?.params?.userId!),
     options: args.queryOptions,

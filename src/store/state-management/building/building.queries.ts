@@ -11,7 +11,11 @@ const getAllBuildingByAgencyQueries = (
   >,
 ) => {
   const { params, queryOptions } = args;
-  return QUERIES.useCustomQuery<MODELS.IPaginatedResponse<MODELS.IBuilding>>({
+  return QUERIES.useCustomQuery<
+    undefined,
+    MODELS.IBuildingFilter,
+    MODELS.IPaginatedResponse<MODELS.IBuilding>
+  >({
     queryKey: [Constants.BUILDING_KEYS.ALL_BUILDING_BY_AGENCY, params],
     queryFn: () => buildingServiceInstance().building_list(params as MODELS.IBuildingFilter),
     options: queryOptions,

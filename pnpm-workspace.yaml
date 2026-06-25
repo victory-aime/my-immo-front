@@ -5,4 +5,5 @@ allowBuilds:
   protobufjs: set this to true or false
   sharp: set this to true or false
 minimumReleaseAgeExclude:
-  - rise-core-frontend@4.4.15
+  - rise-core-frontend@4.4.18
+  - rise-core-frontend@4.4.19

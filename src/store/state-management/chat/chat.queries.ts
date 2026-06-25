@@ -7,7 +7,7 @@ const getConversationQueries = (
   args: QUERIES.QueryPayload<MODELS.Conversation[], undefined, { userId: string }>,
 ) => {
   const { params, queryOptions } = args;
-  return QUERIES.useCustomQuery<MODELS.Conversation[], undefined, { userId: string }>({
+  return QUERIES.useCustomQuery<undefined, { userId: string }, MODELS.Conversation[]>({
     queryKey: [Constants.CHAT_KEYS.GET_ALL_CONVERSATIONS],
     queryFn: () => chatServiceInstance().getConversation(params?.userId!),
     options: queryOptions,

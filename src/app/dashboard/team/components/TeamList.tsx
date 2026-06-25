@@ -27,8 +27,8 @@ export const TeamList = () => {
     refetch: reloadTeamList,
   } = TeamModule.getAllTeamByAgency({
     params: {
-      agencyId,
-      userId,
+      agencyId: agencyId!,
+      userId: userId!,
     },
     queryOptions: {
       enabled: !!agencyId && !!userId,
@@ -110,14 +110,18 @@ export const TeamList = () => {
         data={teamList ?? []}
         columns={teamsColumns}
         isLoading={isTeamLoading}
-        hidePagination={teamList ? teamList.length < 10 : true}
+        hidePagination={teamList ? teamList.length < 100 : true}
       />
       <TeamDetails
         data={selectedValues}
         onChange={setOpenDetails}
         isOpen={openDetails}
         callback={() => {
-          handleStatus(selectedValues?.status!, selectedValues?.id!, selectedValues?.userId!);
+          handleStatus(
+            selectedValues?.status === ENUM.COMMON.Status.ACTIVE,
+            selectedValues?.id!,
+            selectedValues?.userId!,
+          );
           setOpenDetails(false);
         }}
       />

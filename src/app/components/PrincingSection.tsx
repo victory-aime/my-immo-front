@@ -60,15 +60,14 @@ export const PricingSection = () => {
           </BaseText>
 
           <BaseText fontWeight={'bold'} variant={TextVariant.H2} lineHeight={1.2}>
-            Choisissez votre modèle de tarification
+            Modèle de tarification
           </BaseText>
           <BaseText variant={TextVariant.L} mb={2} mt={1} color={'gray.400'}>
-            Payez à la commission ou souscrivez à un abonnement. Vous restez libre.
+            Souscrivez à un abonnement. Vous restez libre.
           </BaseText>
         </MotionBox>
 
         <VStack textAlign={'center'}>
-          <PlanSelectorMode value={mode} onChange={setMode} />
           {mode === 'SUBSCRIPTION' && (
             <BillingCycleToggle
               value={billingCycle}
