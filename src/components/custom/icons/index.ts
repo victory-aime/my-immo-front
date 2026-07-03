@@ -64,7 +64,16 @@ import { PiBathtubLight, PiEyeLight } from 'react-icons/pi';
 import { GrMoney } from 'react-icons/gr';
 import { TbRestore } from 'react-icons/tb';
 import { RxDotsHorizontal, RxHamburgerMenu, RxLapTimer } from 'react-icons/rx';
-import { LuBuilding2, LuClipboardList, LuHeartHandshake, LuMaximize, LuSend } from 'react-icons/lu';
+import {
+  LuBuilding2,
+  LuClipboardList,
+  LuFile,
+  LuFileImage,
+  LuFiles,
+  LuHeartHandshake,
+  LuMaximize,
+  LuSend,
+} from 'react-icons/lu';
 import { BsCalendar3, BsSliders } from 'react-icons/bs';
 import { CiGrid31 } from 'react-icons/ci';
 import { ImOffice } from 'react-icons/im';
@@ -167,4 +176,7 @@ export const Icons = {
   FingerPrint: IoMdFingerPrint,
   InfoIcon: HiOutlineInformationCircle,
   ChevronDown: BiChevronDown,
+  LuFiles,
+  LuFileImage,
+  LuFile,
 };
