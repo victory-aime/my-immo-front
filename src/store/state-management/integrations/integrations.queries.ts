@@ -16,35 +16,11 @@ const getProviderUrlQueries = (
 };
 
 const getProviderFilesQueries = (
-  args: QUERIES.QueryPayload<
-    {
-      fileId: string;
-      name: string;
-      webViewLink: string;
-      mimeType?: string;
-      size?: string;
-      modifiedTime?: string;
-      trashed?: boolean;
-    }[],
-    undefined,
-    { provider: string }
-  >,
+  args: QUERIES.QueryPayload<MODELS.ListedFileResult[], undefined, { provider: string }>,
 ) => {
   const { params, queryOptions } = args;
 
-  return QUERIES.useCustomQuery<
-    { provider: string },
-    undefined,
-    {
-      fileId: string;
-      name: string;
-      webViewLink: string;
-      mimeType?: string;
-      size?: string;
-      modifiedTime?: string;
-      trashed?: boolean;
-    }[]
-  >({
+  return QUERIES.useCustomQuery<{ provider: string }, undefined, MODELS.ListedFileResult[]>({
     queryKey: [Constants.INTEGRATIONS_KEYS.GET_FILES],
     queryFn: () => integrationsServiceInstance().list_files(params?.provider!),
     options: queryOptions,
@@ -52,19 +28,7 @@ const getProviderFilesQueries = (
 };
 
 const getTrashedFilesQueries = (
-  args: QUERIES.QueryPayload<
-    {
-      fileId: string;
-      name: string;
-      webViewLink: string;
-      mimeType?: string;
-      size?: string;
-      modifiedTime?: string;
-      trashed?: boolean;
-    }[],
-    undefined,
-    { provider: string }
-  >,
+  args: QUERIES.QueryPayload<MODELS.ListedFileResult[], undefined, { provider: string }>,
 ) => {
   const { params, queryOptions } = args;
 

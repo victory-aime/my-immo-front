@@ -17,7 +17,7 @@ import {
   CiWarning,
 } from 'react-icons/ci';
 import { FaBook, FaUsers } from 'react-icons/fa6';
-import { FaCog, FaUserAlt, FaUserPlus } from 'react-icons/fa';
+import { FaCog, FaGoogleDrive, FaUserAlt, FaUserPlus } from 'react-icons/fa';
 import { HiOutlineInformationCircle, HiOutlineMail } from 'react-icons/hi';
 import {
   HiHeart,
@@ -160,6 +160,7 @@ export const Icons = {
   Rocket: IoRocketSharp,
   Cloud: CiCloudOn,
   Google: FcGoogle,
+  GoogleDrive: FaGoogleDrive,
   GridHome: CiGrid42,
   Minus: FiMinus,
   SendMail: RiMailSendLine,

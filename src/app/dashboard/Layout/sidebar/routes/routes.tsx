@@ -99,15 +99,14 @@ export const ALL_CSA_ROUTES: SidebarNavGroupProps[] = [
     title: 'Outils',
     icon: Icons.Wrench,
     links: [
-
       {
-        label: 'Integrations',
+        label: 'Google Drive',
         path: DASHBOARD_ROUTES.INTEGRATIONS_PROVIDER,
-        icon: Icons.Cloud,
+        icon: Icons.GoogleDrive,
       },
     ],
   },
-    {
+  {
     title: 'Compte',
     icon: Icons.FaUsers,
     links: [

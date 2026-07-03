@@ -1,56 +1,33 @@
 'use client';
 
-import {
-  Badge,
-  Box,
-  Button,
-  Circle,
-  HStack,
-  Icon,
-  IconButton,
-  Progress,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, Circle, HStack, Icon, IconButton, Progress, VStack } from '@chakra-ui/react';
 import {
   BaseText,
   TextVariant,
   BaseUploadMultipleFiles,
   CustomSkeletonLoader,
-  BaseButton,
+  BaseTooltip,
+  Loader,
 } from '_components/custom';
 import { useState } from 'react';
-import { HiOutlineCloud, HiOutlineExternalLink, HiOutlineTrash } from 'react-icons/hi';
+import { HiOutlineExternalLink, HiOutlineTrash } from 'react-icons/hi';
 import { getFileIcon, getFileIconColor } from '_hooks/download';
 import { IntegrationsProviderModule } from '_store/state-management';
 import { formatDisplayDate, getTimeValue } from 'rise-core-frontend';
 import { useFakeProgress } from '_hooks/useFakeProgress';
 import React from 'react';
 
-/**
- * =========================================================================
- *
- * Points de branchement futurs, repérables via les commentaires TODO :
- *  - handleDisconnect   -> POST /v1/secure/integrations/providers/disconnect  (⚠️ voir note plus bas)
- *  - handleDeleteFile   -> DELETE /v1/secure/integrations/providers/files/:fileId (endpoint à créer)
- *
- * =========================================================================
- */
-
 export const ManageGoogleDrivePanel = ({
   clearFiles,
-  onEnabled,
+  status = false,
 }: {
   clearFiles?: () => void;
-  onEnabled: () => void;
+  status: boolean;
 }) => {
   const [uploadingFiles, setUploadingFiles] = useState<
     { id: string; name: string; progress: number }[]
   >([]);
   const { stop, start, complete } = useFakeProgress();
-
-  const { data, isLoading } = IntegrationsProviderModule.getProviderStatusQueries({
-    params: { provider: 'GOOGLE_DRIVE' },
-  });
 
   const {
     data: filesData,
@@ -58,7 +35,7 @@ export const ManageGoogleDrivePanel = ({
     isLoading: isLoadingFiles,
   } = IntegrationsProviderModule.getProviderFilesQueries({
     params: { provider: 'GOOGLE_DRIVE' },
-    queryOptions: { enabled: data?.connected },
+    queryOptions: { enabled: status },
   });
 
   const { mutateAsync } = IntegrationsProviderModule.uploadFileMutation({
@@ -69,7 +46,14 @@ export const ManageGoogleDrivePanel = ({
     },
   });
 
-  const handleDisconnect = () => {};
+  const { mutateAsync: addToTrash, isPending } =
+    IntegrationsProviderModule.trashedFileProviderMutation({
+      mutationOptions: {
+        onSuccess: async () => {
+          await refetch();
+        },
+      },
+    });
 
   const handleFilesUploaded = (newFiles: File[]) => {
     if (newFiles.length === 0) return;
@@ -108,145 +92,107 @@ export const ManageGoogleDrivePanel = ({
     });
   };
 
-  const handleDeleteFile = (fileId: string) => {};
-
-  if (!data?.connected && !isLoading) {
-    return (
-      <VStack py={10} gap={3} w="full">
-        <Circle size="10" bg="green.50" color="green.600">
-          <HiOutlineCloud size={20} />
-        </Circle>
-        <BaseText variant={TextVariant.M} color="fg.muted">
-          Connectez votre Google Drive pour envoyer des fichiers.
-        </BaseText>
-        <BaseButton onClick={onEnabled}>Connecter mon drive</BaseButton>
-      </VStack>
-    );
-  }
+  const handleTrashFile = async (fileId: string) => {
+    await addToTrash({ params: { fileId, provider: 'GOOGLE_DRIVE' } });
+  };
 
   return (
     <React.Fragment>
-      {isLoading || isLoadingFiles ? (
+      {isLoadingFiles ? (
         <CustomSkeletonLoader type={'DATA_TABLE'} />
       ) : (
-        <FileUpload.Dropzone
-          border={'none'}
-          width={'full'}
-          borderColor="transparent"
-          borderRadius="l2"
-          transition="all 0.15s ease"
-          _dragging={{
-            borderColor: 'primary.500',
-            border: '2px dashed',
-            bg: 'primary.50',
-            height: '100svh',
-          }}
-        >
-          <VStack align="stretch" gap={4} w="full">
-            <HStack justify="space-between">
-              <HStack gap={3}>
-                <Circle size="10" bg="green.50" color="green.600">
-                  <HiOutlineCloud size={20} />
-                </Circle>
-                <Box>
-                  <BaseText variant={TextVariant.S} fontWeight="medium">
-                    Google Drive
-                  </BaseText>
-                  <BaseText variant={TextVariant.XS} color="fg.muted">
-                    Accès limité aux fichiers créés par l'application
-                  </BaseText>
-                </Box>
+        <React.Fragment>
+          <BaseUploadMultipleFiles getFilesUploaded={handleFilesUploaded} />
+
+          <VStack
+            align="stretch"
+            borderWidth="1px"
+            borderRadius="l2"
+            overflow="hidden"
+            width={'full'}
+          >
+            {uploadingFiles.map((u) => (
+              <HStack key={u.id} px={4} py={3} borderBottomWidth="1px" gap={3}>
+                <BaseText variant={TextVariant.S} flex={1} truncate>
+                  {u.name}
+                </BaseText>
+                <Progress.Root value={u.progress} w="32" size="xs" colorPalette="blue">
+                  <Progress.Track>
+                    <Progress.Range />
+                  </Progress.Track>
+                </Progress.Root>
+                <BaseText variant={TextVariant.XS} color="fg.muted" fontFamily="mono">
+                  {u.progress}%
+                </BaseText>
               </HStack>
-              <HStack gap={2}>
-                <Badge colorPalette="green" variant="subtle">
-                  Connecté
-                </Badge>
-                <Button size="xs" variant="outline" onClick={handleDisconnect}>
-                  Déconnecter
-                </Button>
-              </HStack>
-            </HStack>
+            ))}
 
-            <BaseUploadMultipleFiles getFilesUploaded={handleFilesUploaded} />
+            {filesData?.map((file, index) => {
+              const config = getFileIconColor(file.name);
+              const FileIcon = getFileIcon(file?.name);
+              return (
+                <HStack
+                  key={file.fileId}
+                  px={4}
+                  py={3}
+                  gap={3}
+                  borderBottomWidth={index === filesData?.length - 1 ? '0' : '1px'}
+                >
+                  <Circle size="8" bg={config.bg} color={config.color} flexShrink={0}>
+                    <Icon
+                      as={FileIcon}
+                      boxSize={3.5}
+                      color={config.color}
+                      _dark={{ color: config.color }}
+                    />
+                  </Circle>
 
-            <VStack align="stretch" gap={0} borderWidth="1px" borderRadius="l2" overflow="hidden">
-              {uploadingFiles.map((u) => (
-                <HStack key={u.id} px={4} py={3} borderBottomWidth="1px" gap={3}>
-                  <BaseText variant={TextVariant.S} flex={1} truncate>
-                    {u.name}
-                  </BaseText>
-                  <Progress.Root value={u.progress} w="32" size="xs" colorPalette="blue">
-                    <Progress.Track>
-                      <Progress.Range />
-                    </Progress.Track>
-                  </Progress.Root>
-                  <BaseText variant={TextVariant.XS} color="fg.muted" fontFamily="mono">
-                    {u.progress}%
-                  </BaseText>
-                </HStack>
-              ))}
-
-              {filesData?.map((file, index) => {
-                const config = getFileIconColor(file.name);
-                const FileIcon = getFileIcon(file?.name);
-                return (
-                  <HStack
-                    key={file.fileId}
-                    px={4}
-                    py={3}
-                    gap={3}
-                    borderBottomWidth={index === filesData?.length - 1 ? '0' : '1px'}
-                  >
-                    <Circle size="8" bg={config.bg} color={config.color} flexShrink={0}>
-                      <Icon
-                        as={FileIcon}
-                        boxSize={3.5}
-                        color={config.color}
-                        _dark={{ color: config.color }}
-                      />
-                    </Circle>
-
-                    <Box flex={1} minW={0}>
-                      <BaseText variant={TextVariant.S} truncate>
-                        {file.name}
-                      </BaseText>
-                      <BaseText variant={TextVariant.XS} color="fg.muted" fontFamily="mono">
-                        {file?.size} · {formatDisplayDate(file.modifiedTime)} ·{' '}
-                        {getTimeValue(file.modifiedTime!)}
-                      </BaseText>
-                    </Box>
+                  <Box flex={1} minW={0}>
+                    <BaseText variant={TextVariant.S} truncate>
+                      {file.name}
+                    </BaseText>
+                    <BaseText variant={TextVariant.XS} color="fg.muted" fontFamily="mono">
+                      {file?.size} · {formatDisplayDate(file.modifiedTime)} ·{' '}
+                      {getTimeValue(file.modifiedTime!)}
+                    </BaseText>
+                  </Box>
+                  <BaseTooltip message={'Ouvrir dans Google Drive'} show>
                     <IconButton
                       aria-label="Ouvrir dans Google Drive"
                       size="xs"
-                      variant="ghost"
-                      color="fg.muted"
+                      colorPalette={'purple'}
                       onClick={() => window.open(file.webViewLink, '_blank')}
                     >
                       <HiOutlineExternalLink size={16} />
                     </IconButton>
-                    <IconButton
-                      aria-label="Supprimer"
-                      size="xs"
-                      variant="ghost"
-                      color="fg.muted"
-                      onClick={() => handleDeleteFile(file.fileId)}
-                    >
-                      <HiOutlineTrash size={16} />
-                    </IconButton>
-                  </HStack>
-                );
-              })}
+                  </BaseTooltip>
+                  {isPending ? (
+                    <Loader loader />
+                  ) : (
+                    <BaseTooltip message={'Mettre dans la corbeille'} show>
+                      <IconButton
+                        aria-label="Supprimer"
+                        size="xs"
+                        colorPalette={'red'}
+                        onClick={() => handleTrashFile(file.fileId)}
+                      >
+                        <HiOutlineTrash size={16} />
+                      </IconButton>
+                    </BaseTooltip>
+                  )}
+                </HStack>
+              );
+            })}
 
-              {filesData?.length === 0 && uploadingFiles.length === 0 && (
-                <Box px={4} py={8} textAlign="center">
-                  <BaseText variant={TextVariant.S} color="fg.muted">
-                    Aucun fichier envoyé pour l'instant.
-                  </BaseText>
-                </Box>
-              )}
-            </VStack>
+            {!filesData && uploadingFiles?.length === 0 && (
+              <Box px={4} py={8} textAlign="center">
+                <BaseText variant={TextVariant.S} color="fg.muted">
+                  Aucun fichier envoyé pour l'instant.
+                </BaseText>
+              </Box>
+            )}
           </VStack>
-        </FileUpload.Dropzone>
+        </React.Fragment>
       )}
     </React.Fragment>
   );
