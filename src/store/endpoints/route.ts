@@ -505,19 +505,19 @@ export const APIS = (baseUrl?: string) => {
         showResponse: false,
       }),
       FILES_LIST: api({
-        path: `${APIS_ROUTES_MODULES_PATH.INTEGRATIONS_PROVIDER}/files`,
+        path: `${APIS_ROUTES_MODULES_PATH.INTEGRATIONS_PROVIDER}/files-list`,
         pathBase: 'SECURED_API',
         method: 'GET',
         showResponse: false,
       }),
       TRASHED_FILES_LIST: api({
-        path: `${APIS_ROUTES_MODULES_PATH.INTEGRATIONS_PROVIDER}/list-trashed`,
+        path: `${APIS_ROUTES_MODULES_PATH.INTEGRATIONS_PROVIDER}/trashed-list`,
         pathBase: 'SECURED_API',
         method: 'GET',
         showResponse: false,
       }),
       TRASHED: api({
-        path: `${APIS_ROUTES_MODULES_PATH.INTEGRATIONS_PROVIDER}/trashed`,
+        path: `${APIS_ROUTES_MODULES_PATH.INTEGRATIONS_PROVIDER}/trashed-file`,
         pathBase: 'SECURED_API',
         method: 'POST',
       }),

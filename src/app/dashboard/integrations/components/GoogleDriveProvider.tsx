@@ -16,13 +16,14 @@ import { TrashedFilesList } from './TrashedFilesList';
 import { VStack, Circle } from '@chakra-ui/react';
 import { HiOutlineCloud } from 'react-icons/hi';
 import { DisconnectDrive } from './DisconnectDrive';
+import { ProviderKeys } from '_constants/StorageKeys';
 
 export function GoogleDriveProvider() {
   const [enabled, setEnabled] = React.useState(false);
   const [openConsent, setOpenConsent] = React.useState(false);
   const { data } = IntegrationsProviderModule.getProviderUrlQueries({
     params: {
-      provider: 'GOOGLE_DRIVE',
+      provider: ProviderKeys.GOOGLE_DRIVE,
     },
     queryOptions: { enabled },
   });
@@ -32,7 +33,7 @@ export function GoogleDriveProvider() {
     isLoading,
     refetch: refetchStatus,
   } = IntegrationsProviderModule.getProviderStatusQueries({
-    params: { provider: 'GOOGLE_DRIVE' },
+    params: { provider: ProviderKeys.GOOGLE_DRIVE },
   });
 
   const {
@@ -40,7 +41,7 @@ export function GoogleDriveProvider() {
     isLoading: isLoadingTrashedFiles,
     refetch,
   } = IntegrationsProviderModule.getTrashedFilesQueries({
-    params: { provider: 'GOOGLE_DRIVE' },
+    params: { provider: ProviderKeys.GOOGLE_DRIVE },
     queryOptions: { enabled: !!status?.connected },
   });
 
@@ -58,6 +59,8 @@ export function GoogleDriveProvider() {
       window.location.href = data.url;
     }
   }, [data]);
+
+  if (isLoading) return null;
 
   if (!status?.connected) {
     return (
@@ -115,7 +118,7 @@ export function GoogleDriveProvider() {
       <FloatSwitchColorMode />
       <DisconnectDrive
         isOpen={openConsent}
-        callback={async () => await disconnect({ params: { provider: 'GOOGLE_DRIVE' } })}
+        callback={async () => await disconnect({ params: { provider: ProviderKeys.GOOGLE_DRIVE } })}
         isLoading={disconnectPending}
         onChange={() => setOpenConsent(false)}
       />

@@ -1,6 +1,16 @@
 'use client';
 
-import { Box, Circle, HStack, Icon, IconButton, Progress, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Circle,
+  HStack,
+  Icon,
+  IconButton,
+  VStack,
+  Stack,
+  ProgressCircle,
+  AbsoluteCenter,
+} from '@chakra-ui/react';
 import {
   BaseText,
   TextVariant,
@@ -15,6 +25,7 @@ import { getFileIcon, getFileIconColor } from '_hooks/download';
 import { IntegrationsProviderModule } from '_store/state-management';
 import { formatDisplayDate, getTimeValue } from 'rise-core-frontend';
 import { useFakeProgress } from '_hooks/useFakeProgress';
+import { ProviderKeys } from '_constants/StorageKeys';
 import React from 'react';
 
 export const ManageGoogleDrivePanel = ({
@@ -34,7 +45,7 @@ export const ManageGoogleDrivePanel = ({
     refetch,
     isLoading: isLoadingFiles,
   } = IntegrationsProviderModule.getProviderFilesQueries({
-    params: { provider: 'GOOGLE_DRIVE' },
+    params: { provider: ProviderKeys.GOOGLE_DRIVE },
     queryOptions: { enabled: status },
   });
 
@@ -50,6 +61,7 @@ export const ManageGoogleDrivePanel = ({
     IntegrationsProviderModule.trashedFileProviderMutation({
       mutationOptions: {
         onSuccess: async () => {
+          IntegrationsProviderModule.IntegrationsProvidersCache.invalidateAllTrashedFilesCache();
           await refetch();
         },
       },
@@ -73,7 +85,7 @@ export const ManageGoogleDrivePanel = ({
       try {
         await mutateAsync({
           payload: { file: formData as unknown as string },
-          params: { provider: 'GOOGLE_DRIVE' },
+          params: { provider: ProviderKeys.GOOGLE_DRIVE },
         });
         complete(id, (progress) => {
           setUploadingFiles((prev) => prev.map((u) => (u.id === id ? { ...u, progress } : u)));
@@ -93,7 +105,7 @@ export const ManageGoogleDrivePanel = ({
   };
 
   const handleTrashFile = async (fileId: string) => {
-    await addToTrash({ params: { fileId, provider: 'GOOGLE_DRIVE' } });
+    await addToTrash({ params: { fileId, provider: ProviderKeys.GOOGLE_DRIVE } });
   };
 
   return (
@@ -105,25 +117,39 @@ export const ManageGoogleDrivePanel = ({
           <BaseUploadMultipleFiles getFilesUploaded={handleFilesUploaded} />
 
           <VStack
-            align="stretch"
+            align="flex-start"
             borderWidth="1px"
             borderRadius="l2"
             overflow="hidden"
             width={'full'}
           >
             {uploadingFiles.map((u) => (
-              <HStack key={u.id} px={4} py={3} borderBottomWidth="1px" gap={3}>
+              <HStack
+                key={u.id}
+                px={4}
+                py={3}
+                borderBottomWidth="1px"
+                gap={3}
+                width={'full'}
+                justifyContent={'space-between'}
+              >
                 <BaseText variant={TextVariant.S} flex={1} truncate>
                   {u.name}
                 </BaseText>
-                <Progress.Root value={u.progress} w="32" size="xs" colorPalette="blue">
-                  <Progress.Track>
-                    <Progress.Range />
-                  </Progress.Track>
-                </Progress.Root>
-                <BaseText variant={TextVariant.XS} color="fg.muted" fontFamily="mono">
-                  {u.progress}%
-                </BaseText>
+                <ProgressCircle.Root
+                  value={u.progress}
+                  fontSize={'xs'}
+                  size={'md'}
+                  colorPalette={'purple'}
+                >
+                  <ProgressCircle.Circle>
+                    <ProgressCircle.Track />
+                    <ProgressCircle.Range strokeLinecap="round" />
+                  </ProgressCircle.Circle>
+                  <AbsoluteCenter>
+                    <ProgressCircle.ValueText />
+                  </AbsoluteCenter>
+                </ProgressCircle.Root>
               </HStack>
             ))}
 
@@ -137,49 +163,54 @@ export const ManageGoogleDrivePanel = ({
                   py={3}
                   gap={3}
                   borderBottomWidth={index === filesData?.length - 1 ? '0' : '1px'}
+                  width={'full'}
+                  justifyContent={'space-between'}
                 >
-                  <Circle size="8" bg={config.bg} color={config.color} flexShrink={0}>
-                    <Icon
-                      as={FileIcon}
-                      boxSize={3.5}
-                      color={config.color}
-                      _dark={{ color: config.color }}
-                    />
-                  </Circle>
-
-                  <Box flex={1} minW={0}>
-                    <BaseText variant={TextVariant.S} truncate>
-                      {file.name}
-                    </BaseText>
-                    <BaseText variant={TextVariant.XS} color="fg.muted" fontFamily="mono">
-                      {file?.size} · {formatDisplayDate(file.modifiedTime)} ·{' '}
-                      {getTimeValue(file.modifiedTime!)}
-                    </BaseText>
-                  </Box>
-                  <BaseTooltip message={'Ouvrir dans Google Drive'} show>
-                    <IconButton
-                      aria-label="Ouvrir dans Google Drive"
-                      size="xs"
-                      colorPalette={'purple'}
-                      onClick={() => window.open(file.webViewLink, '_blank')}
-                    >
-                      <HiOutlineExternalLink size={16} />
-                    </IconButton>
-                  </BaseTooltip>
-                  {isPending ? (
-                    <Loader loader />
-                  ) : (
-                    <BaseTooltip message={'Mettre dans la corbeille'} show>
+                  <HStack>
+                    <Circle size="8" bg={config.bg} color={config.color} flexShrink={0}>
+                      <Icon
+                        as={FileIcon}
+                        boxSize={3.5}
+                        color={config.color}
+                        _dark={{ color: config.color }}
+                      />
+                    </Circle>
+                    <Stack alignItems={'flex-start'} gap={0}>
+                      <BaseText variant={TextVariant.S} truncate>
+                        {file.name}
+                      </BaseText>
+                      <BaseText variant={TextVariant.XS} color="fg.muted" fontFamily="mono">
+                        {file?.size} · {formatDisplayDate(file.modifiedTime)} ·{' '}
+                        {getTimeValue(file.modifiedTime!)}
+                      </BaseText>
+                    </Stack>
+                  </HStack>
+                  <HStack gap={2}>
+                    <BaseTooltip message={'Ouvrir dans Google Drive'} show>
                       <IconButton
-                        aria-label="Supprimer"
+                        aria-label="Ouvrir dans Google Drive"
                         size="xs"
-                        colorPalette={'red'}
-                        onClick={() => handleTrashFile(file.fileId)}
+                        colorPalette={'purple'}
+                        onClick={() => window.open(file.webViewLink, '_blank')}
                       >
-                        <HiOutlineTrash size={16} />
+                        <HiOutlineExternalLink size={16} />
                       </IconButton>
                     </BaseTooltip>
-                  )}
+                    {isPending ? (
+                      <Loader loader />
+                    ) : (
+                      <BaseTooltip message={'Mettre dans la corbeille'} show>
+                        <IconButton
+                          aria-label="Supprimer"
+                          size="xs"
+                          colorPalette={'red'}
+                          onClick={() => handleTrashFile(file.fileId)}
+                        >
+                          <HiOutlineTrash size={16} />
+                        </IconButton>
+                      </BaseTooltip>
+                    )}
+                  </HStack>
                 </HStack>
               );
             })}
